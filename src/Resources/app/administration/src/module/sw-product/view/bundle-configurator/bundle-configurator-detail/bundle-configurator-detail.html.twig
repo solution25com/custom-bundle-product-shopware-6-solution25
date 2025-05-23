@@ -1,0 +1,226 @@
+{% block sw_product_detail_bundle %}
+    <div class="custom-bundle-button">
+        <sw-button
+                :router-link="{ name: 'sw.product.detail.bundle.create' }"
+                :disabled="!acl.can('product.editor')"
+                variant="ghost"
+        >
+            {{ $tc('product_bundle.list.addBundle') }}
+        </sw-button>
+    </div>
+
+    <template>
+        <div v-if="bundles && bundles.length > 0">
+            <sw-card
+                    v-for="bundle in bundles"
+                    :key="bundle.id"
+                    :title="bundle && bundle.name ? bundle.name : 'Bundle'"
+                    position-identifier="sw-product-detail-bundle"
+            >
+                <template #header-right>
+                    <sw-button
+                            v-if="!bundle"
+                            :router-link="{ name: 'sw.product.detail.bundle.create' }"
+                            :disabled="!acl.can('product.editor')"
+                    >
+                        {{ $tc('product_bundle.list.addBundle') }}
+                    </sw-button>
+                    <sw-button
+                            v-if="bundle"
+                            @click="onStartBundleDelete(bundle)"
+                    >
+                        {{ $tc('product_bundle.list.deleteBundle') }}
+                    </sw-button>
+                    <sw-button
+                            v-if="bundle"
+                            variant="primary"
+                            :disabled="!acl.can('product.editor')"
+                            @click="saveBundleChanges(bundle)"
+                    >
+                        {{ $tc('product_bundle.create.save') }}
+                    </sw-button>
+
+                </template>
+
+                {% block sw_product_detail_bundle_data %}
+                    <template>
+                        <div class="sw-product-detail-bundle">
+                            <template v-if="!isLoading">
+                                <div v-if="bundle">
+                                    <div class="sw-product-detail-bundle__info">
+                                        <div>
+                                            <strong>{{ $tc('product_bundle.list.bundleProducts') }}</strong>
+                                            <sw-data-grid
+                                                    :dataSource="bundle.bundleAssignedProducts"
+                                                    :columns="assignedProductColumns"
+                                                    :showSettings="true"
+                                                    :showSelection="false"
+                                            >
+                                                <template #actions="{ item }">
+                                                    <sw-context-menu-item
+                                                            variant="danger"
+                                                            @click="deleteProductFromBundle(item.productId, bundle.id)"
+                                                    >
+                                                        {{ $tc('product_bundle.list.delete') }}
+                                                    </sw-context-menu-item>
+                                                </template>
+                                                <template #column-productNumber="{ item }">
+                                                    {{ item.product.productNumber }}
+                                                </template>
+                                                <template #column-productName="{ item }">
+                                                    {{ item.product.translated.name }}
+
+                                                    <span v-if="item.product.parentId">
+                                                        {{ parentProductNames[item.product.parentId] ?  parentProductNames[item.product.parentId] : '' }}
+                                                    </span>
+
+                                                <span class="product-options">
+
+                                                    {{ item.product.options[0]?.group.name ? ': ' + item.product.options[0].group.name + ': ' : '' }}
+                                                    {{ item.product.options[0]?.name ? item.product.options[0].name : '' }}
+
+                                                    {{ item.product.options[1]?.group.name ? ',' + item.product.options[1].group.name + ': ' : '' }}
+                                                    {{ item.product.options[1]?.name ? item.product.options[1].name : '' }}
+
+                                                </span>
+
+                                                </template>
+
+                                                <template #column-quantity="{ item }">
+                                                    <template v-if="editingProductId === item.productId">
+                                                        <sw-number-field
+                                                                size="small"
+                                                                numberType="int"
+                                                                :min="1"
+                                                                v-model:value="item.newQuantity">
+                                                        </sw-number-field>
+                                                        <sw-button
+                                                                class="sw-button sw-data-grid__inline-edit-cancel sw-button--x-small sw-button--square custom-cancel-btn-margin"
+                                                                @click="cancelSaveQuantity(item)">
+                                                            <sw-icon name="regular-times-xs"/>
+                                                        </sw-button>
+                                                        <sw-button
+                                                                class="sw-button sw-data-grid__inline-edit-save sw-button--primary sw-button--x-small sw-button--square"
+                                                                @click="saveQuantity(item)">
+                                                            <sw-icon name="regular-checkmark-xs"/>
+                                                        </sw-button>
+                                                    </template>
+                                                    <template v-else>
+                                                        <span @click="editQuantity(item)">
+                                                            {{ item.quantity }}
+                                                        </span>
+                                                    </template>
+                                                </template>
+                                            </sw-data-grid>
+                                        </div>
+
+                                        <div class="sw-product-detail-bundle__name-section">
+                                            <sw-text-field
+                                                    v-if="bundle"
+                                                    v-model:value="bundle.name"
+                                                    :label="$tc('product_bundle.list.bundleName')"
+                                                    :disabled="!acl.can('product.editor')"
+                                                    class="bundle-input"
+                                            ></sw-text-field>
+                                        </div>
+
+                                        <div class="sw-product-detail-bundle__discount-section">
+                                            <sw-number-field
+                                                    v-if="bundle"
+                                                    v-model:value="bundle.discount"
+                                                    :label="$tc('product_bundle.list.discount')"
+                                                    :disabled="!acl.can('product.editor')"
+                                                    class="bundle-input"
+                                            ></sw-number-field>
+
+                                            <sw-single-select
+                                                    v-if="bundle"
+                                                    v-model:value="bundle.discountType"
+                                                    :label="$tc('product_bundle.list.discountType')"
+                                                    :options="[
+                                                    { value: 'percentage', label: 'Percentage' },
+                                                    { value: 'fixed', label: 'Fixed Amount' }
+                                                ]"
+                                                    :disabled="!acl.can('product.editor')"
+                                                    class="bundle-input"
+                                            ></sw-single-select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                            <template v-else>
+                                <sw-loader></sw-loader>
+                            </template>
+
+                            <sw-button
+                                    @click="startAddingToBundle(bundle)"
+                                    class="sw-button__add-product"
+                                    size="small"
+                                    variant="ghost">
+                                {{ $tc('product_bundle.list.addProductBundle') }}
+                            </sw-button>
+
+                            <div v-if="showingBundleFormForId === bundle.id">
+                                <form @submit.prevent="addProductToBundle">
+                                    
+                                    <sw-entity-single-select
+                                            v-model:value="selectedProductId"
+                                            entity="product"
+                                            :criteria="productCriteria"
+                                            label="Select Product"
+                                            placeholder="Select Product"
+                                            :displayVariants = "true"
+                                            required
+                                    />
+
+                                    <sw-number-field
+                                            v-model:value="selectedQuantity"
+                                            label="Quantity"
+                                            type="number"
+                                            :placeholder="Quantity"
+                                            min="1"
+                                            required
+                                    />
+
+                                    <div class="form-actions">
+                                        <sw-button @click="cancelAddingToBundle" variant="ghost">
+                                            {{ $tc('product_bundle.list.cancel') }}
+                                        </sw-button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <sw-modal
+                                    v-if="showBundleDeleteModal"
+                                    title="Confirm Deletion"
+                                    @modal-close="onCloseBundleDeleteModal"
+                            >
+                                <p>{{ $tc('product_bundle.list.confirmDeletionMessage') }}</p>
+                                <template #modal-footer>
+                                    <sw-button @click="onCancelBundleDelete">
+                                        {{ $tc('product_bundle.list.cancel') }}
+                                    </sw-button>
+                                    <sw-button
+                                            variant="danger"
+                                            @click="onConfirmBundleDelete"
+                                    >
+                                        {{ $tc('product_bundle.list.deleteConfirm') }}
+                                    </sw-button>
+                                </template>
+                            </sw-modal>
+                        </div>
+                    </template>
+                {% endblock %}
+            </sw-card>
+        </div>
+        <div v-else>
+            <sw-card>
+                <sw-empty-state
+                        :absolute="false"
+                        :title="$tc('product_bundle.list.noBundleAvailableTitle')"
+                        :subline="$tc('product_bundle.list.noBundleAvailableMessage')"
+                ></sw-empty-state>
+            </sw-card>
+        </div>
+    </template>
+{% endblock %}

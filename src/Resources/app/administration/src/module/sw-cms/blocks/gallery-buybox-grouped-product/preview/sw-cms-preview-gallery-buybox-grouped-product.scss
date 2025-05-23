@@ -1,0 +1,115 @@
+@import "~scss/variables";
+
+
+.sw-cms-preview-gallery-buybox {
+    display: grid;
+    grid-template-columns: 7fr 5fr;
+    padding: 15px 5px 15px 15px;
+    height: 150px;
+&.sw-cms-preview-gallery-grouped{
+    display:flex;
+    flex-direction:column;
+    min-height:300px;
+    justify-content: space-between;
+    .sw-cms-preview-gallery-buybox__gallery{
+        max-width:60%;
+    }
+}
+    &__gallery {
+        display: grid;
+        grid-template-columns: 22px 1fr;
+        grid-gap: 4px;
+    }
+
+    &__images {
+        display: grid;
+        grid-auto-rows: 22px;
+        grid-gap: 4px;
+
+        img {
+            border: 1px solid $color-gray-300;
+            border-radius: 2px;
+            display: block;
+            object-fit: cover;
+            width: 100%;
+            height: 100%;
+            padding: 4px;
+        }
+    }
+
+    &__slider {
+        position: relative;
+
+        img {
+            margin: 0;
+            display: block;
+            width: 100%;
+            overflow: hidden;
+            height: 120px;
+        }
+
+        span {
+            position: absolute;
+            z-index: 1;
+            top: calc(50% - 8px);
+
+            &:first-child {
+                left: 2px;
+            }
+
+            &:last-child {
+                right: 2px;
+            }
+        }
+    }
+
+    .sw-cms-el-preview-buy-box__price {
+        font-size: $font-size-m;
+    }
+    .bundle-select{
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        padding: 10px;
+        .select{
+            width: 48%;
+            border: 1px solid #f0f2f5;
+            padding: 3px;
+            border-radius: 4px;
+            margin-bottom: 2px;
+        }
+    }
+    .title{
+        font-weight: 600;
+        padding-left: 10px;
+        margin-bottom: 1px;
+    }
+    .description{
+        padding-left: 10px;
+    }
+    .price,button{
+        font-size: 12px;
+        padding-left: 10px;
+        font-weight: 600;
+    }
+    .buy-button{
+        padding: 4px;
+        margin: 5px;
+        border-radius: 4px;
+        background-color: #f5f5f5;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        .quantity{
+            font-size: 12px;
+        }
+    }
+    .button{
+        color: white;
+        background: red;
+        width: fit-content;
+        padding: 5px;
+        border-radius: 4px;
+        font-size: 10px;
+    }
+}

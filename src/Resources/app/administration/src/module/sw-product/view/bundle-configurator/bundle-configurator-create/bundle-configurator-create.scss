@@ -1,0 +1,56 @@
+.custom-bundle-button {
+  display: flex;
+  justify-self: center;
+  justify-content: center;
+}
+
+.add-product-bundle-button {
+  margin-bottom: 3vh;
+}
+
+.bundle-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin: 0 auto;
+}
+
+.custom-save-all-bundles-button {
+  display: flex;
+  justify-content: flex-end;
+  margin-right: 2vh;
+  margin-bottom: 1vh;
+
+}
+
+#bundle-configurator-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.discount-input-container {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+
+    .discount-input-field input {
+        padding-right: 20px;
+    }
+
+    .input-symbol {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 14px;
+        color: #6c757d;
+        pointer-events: none;
+    }
+}
+
+.bundle-input {
+   .sw-field__label {
+        margin-bottom: 8px;
+    }
+}
+

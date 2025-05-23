@@ -1,0 +1,55 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_cms_block_gallery_buybox_preview %}
+<div class="sw-cms-preview-gallery-buybox">
+    <div class="sw-cms-preview-gallery-buybox__gallery">
+        <div class="sw-cms-preview-gallery-buybox__images">
+            <img
+                :src="assetFilter('/administration/static/img/cms/preview_glasses_small.jpg')"
+                alt=""
+            >
+            <img
+                :src="assetFilter('/administration/static/img/cms/preview_glasses_small.jpg')"
+                alt=""
+            >
+            <img
+                :src="assetFilter('/administration/static/img/cms/preview_glasses_small.jpg')"
+                alt=""
+            >
+        </div>
+
+        <div class="sw-cms-preview-gallery-buybox__slider">
+            <sw-icon
+                name="regular-chevron-left-xs"
+                size="12"
+            />
+            <img
+                :src="assetFilter('/administration/static/img/cms/preview_glasses_small.jpg')"
+                alt=""
+            >
+            <sw-icon
+                name="regular-chevron-right-xs"
+                size="12"
+            />
+        </div>
+    </div>
+
+    <div class="sw-cms-preview-gallery-buybox__buybox">
+        <p class="title">Bundle Product</p>
+        <p class="description">Bundles Element</p>
+        <div class="bundle-select">
+            <div class="select"></div>
+            <div class="select"></div>
+            <div class="select"></div>
+            <div class="select"></div>
+            <div class="select"></div>
+            <div class="select"></div>
+        </div>
+        <div class="price"> 20€</div>
+        <div class="buy-button">
+            <div class="quantity">+ 1 -</div>
+            <div class="button"> Add to cart</div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

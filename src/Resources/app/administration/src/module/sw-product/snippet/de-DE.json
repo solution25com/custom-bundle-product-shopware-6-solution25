@@ -1,0 +1,37 @@
+{
+  "product_bundle": {
+    "list": {
+      "addBundle": "Bundle hinzufügen",
+      "addProductBundle": "Produkt zum Bundle hinzufügen",
+      "bundleId": "Bundle-ID:",
+      "bundleProducts": "Bundle-Produkte",
+      "bundleName": "Bundle-Name",
+      "discount": "Rabatt",
+      "discountTypeSelect": "Rabatttyp auswählen",
+      "discountSelect": "Rabattwert auswählen",
+      "discountType": "Rabatttyp",
+      "productId": "Produkt-ID",
+      "productName": "Name",
+      "productNumber": "Produktnummer",
+      "quantity": "Menge",
+      "actions": "Aktionen",
+      "delete": "Löschen",
+      "deleteBundle": "Bundle löschen",
+      "noBundleAvailableTitle": "Kein Bundle verfügbar",
+      "noBundleAvailableMessage": "Derzeit gibt es kein Bundle für dieses Produkt.",
+      "confirmDeletionTitle": "Löschung bestätigen",
+      "confirmDeletionMessage": "Sind Sie sicher, dass Sie dieses Bundle löschen möchten?",
+      "cancel": "Abbrechen",
+      "deleteConfirm": "Löschen"
+    },
+    "create": {
+      "createBundleTitle": "Bundles erstellen",
+      "addNewBundle": "Neues Bundle hinzufügen",
+      "save": "Bundle speichern",
+      "addProductToBundle": "Produkt zum Bundle hinzufügen",
+      "selectProduct": "Produkt auswählen",
+      "selectProductPlaceholder": "Produkt auswählen",
+      "enterQuantity": "Menge eingeben"
+    }
+  }
+}

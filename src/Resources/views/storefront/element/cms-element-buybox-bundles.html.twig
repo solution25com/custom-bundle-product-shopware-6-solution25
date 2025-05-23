@@ -1,0 +1,105 @@
+{% sw_extends "@Storefront/storefront/component/buy-widget/buy-widget.html.twig" %}
+
+
+{% block buy_widget %}
+    {% set product = page.product %}
+    <div class="product-detail-buy{% if elementId %}-{{ elementId }}{% endif %} js-magnifier-zoom-image-container">
+        {% block buy_widget_rich_snippets %}
+            {{ parent() }}
+        {% endblock %}
+
+        {% block buy_widget_buy_container %}
+            <div itemprop="offers"
+                 itemscope
+                 itemtype="{% if product.calculatedPrices|length > 1 %}http://schema.org/AggregateOffer{% else %}http://schema.org/Offer{% endif %}">
+                {% block buy_widget_data %}
+                    {% block buy_widget_data_rich_snippet_url %}
+                        <meta itemprop="url"
+                              content="{{ seoUrl('frontend.detail.page', { productId: product.id }) }}">
+                    {% endblock %}
+
+                    {% block buy_widget_data_rich_snippet_price_range %}
+                        {% if product.calculatedPrices|length > 1 %}
+                            {% set lowestPrice = false %}
+                            {% set highestPrice = false %}
+
+                            {% for price in product.calculatedPrices %}
+                                {% if not lowestPrice or price.unitPrice < lowestPrice %}
+                                    {% set lowestPrice = price.unitPrice %}
+                                {% endif %}
+                                {% if not highestPrice or price.unitPrice > highestPrice %}
+                                    {% set highestPrice = price.unitPrice %}
+                                {% endif %}
+                            {% endfor %}
+
+                            <meta itemprop="lowPrice" content="{{ lowestPrice }}">
+                            <meta itemprop="highPrice" content="{{ highestPrice }}">
+                            <meta itemprop="offerCount" content="{{ product.calculatedPrices|length }}">
+                        {% endif %}
+                    {% endblock %}
+
+                    {% block buy_widget_data_rich_snippet_price_currency %}
+                        <meta itemprop="priceCurrency"
+                              content="{{ context.currency.translated.shortName }}">
+                    {% endblock %}
+                    {% block product_information %}
+                        {% set salesChannelContent = (page.extensions['bundleSalesChannelContents'][0] is defined) ? page.extensions['bundleSalesChannelContents'][0] : null %}
+                        {% set useSalesChannelContent = salesChannelContent and salesChannelContent.salesChannelId == context.salesChannel._uniqueIdentifier %}
+
+                        <div class="product-information">
+                            <h1 class="product-name">{{ product.translated.name }}</h1>
+                               <div class="product-description">
+                                {% set description = useSalesChannelContent and salesChannelContent.shortDescription is defined ? salesChannelContent.shortDescription|raw : product.translated.description|raw %}
+                                {{ description|raw }}
+                            </div>
+                            {% set sportsMediaId = page.product.translated.customFields.custom_special_banner_product_image %}
+                            {% if sportsMediaId %}
+                                {% set mediaCollection = searchMedia([sportsMediaId], context.context) %}
+                                {% set sportsMedia = mediaCollection.get(sportsMediaId) %}
+
+                                {% if sportsMedia %}
+                                    <img src="{{ sportsMedia.url }}" alt="Special Banner">
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    {% endblock %}
+
+                    {% block bundles_select %}
+                        {% sw_include '@BundlesConfigurator/storefront/component/bundles-select.html.twig' ignore missing %}
+                    {% endblock %}
+
+                    {% block buy_widget_price %}
+                        <div class="product-detail-price-container">
+                            {% sw_include '@Storefront/storefront/component/buy-widget/buy-widget-price.html.twig' %}
+                        </div>
+                    {% endblock %}
+
+                    {% block buy_widget_tax %}
+                    {% endblock %}
+
+                    {% block buy_widget_reviews %}
+                        {{ parent() }}
+                    {% endblock %}
+
+                    {% block buy_widget_delivery_informations %}
+                        {{ parent() }}
+                    {% endblock %}
+                {% endblock %}
+
+                {% block buy_widget_configurator_include %}
+                    {{ parent() }}
+                {% endblock %}
+
+                {% block buy_widget_buy_form %}
+                    {{ parent() }}
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+
+
+        {% block buy_widget_ordernumber_container %}
+        {% endblock %}
+    </div>
+{% endblock %}
+

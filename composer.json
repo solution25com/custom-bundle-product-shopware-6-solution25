@@ -1,0 +1,22 @@
+{
+    "name": "solution25/bundle-configurator",
+    "description": "bundle-configurator/bundle-configurator",
+    "type": "shopware-platform-plugin",
+    "version": "1.0.0",
+    "license": "MIT",
+    "require": {
+        "shopware/core": "~6.6.0"
+    },
+    "extra": {
+        "shopware-plugin-class": "BundleConfigurator\\BundleConfigurator",
+        "label": {
+            "de-DE": "Bundle product",
+            "en-GB": "Bundle product"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "BundleConfigurator\\": "src/"
+        }
+    }
+}

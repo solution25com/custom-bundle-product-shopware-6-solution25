@@ -1,0 +1,92 @@
+{% block bundle_configurator_create %}
+    <div id="bundle-configurator-container">
+        <div class="custom-save-all-bundles-button">
+            <sw-button
+                    @click="storeAllBundles"
+                    variant="primary"
+                    class="custom-save-all-bundles-button">
+                {{ $tc('product_bundle.create.createBundleTitle') }}
+            </sw-button>
+        </div>
+        <sw-card
+                v-for="(bundle, index) in bundles"
+                :key="index"
+                title="Create Bundle"
+                position-identifier="sw-product-detail-bundle-create">
+            <template v-slot:header-right>
+                <sw-button
+                        variant="ghost-danger"
+                        @click="deleteBundle(index)"
+                        class="delete-bundle-button">
+                    {{ $tc('product_bundle.list.delete') }}
+                </sw-button>
+            </template>
+            <sw-text-field
+                    v-model:value="bundle.bundleName"
+                    :label="$tc('product_bundle.list.bundleName')"
+                    :placeholder="$tc('product_bundle.list.bundleName')"
+                    required
+                    class="bundle-input"
+            />
+            <sw-single-select
+                    v-model:value="bundle.discountType"
+                    :label="$tc('product_bundle.list.discountType')"
+                    :options="discountTypeOptions"
+                    :placeholder="$tc('product_bundle.list.discountTypeSelect')"
+                    required
+                    class="bundle-input"
+            >
+            </sw-single-select>
+            <div class="discount-input-container">
+                <sw-number-field
+                        v-model:value="bundle.discount"
+                        :label="$tc('product_bundle.list.discount')"
+                        :placeholder="$tc('product_bundle.list.discountSelect')"
+                        :min="1"
+                        :max="100"
+                        class="discount-input-field"
+                />
+                <span class="input-symbol">
+                    {{ bundle.discountType === 'fixed' ? '$' : (bundle.discountType === 'percentage' ? '%' : '') }}
+                </span>
+            </div>
+
+            <sw-button
+                    @click="addBundleProduct(index)"
+                    class="add-product-bundle-button"
+                    size="small"
+                    variant="ghost">
+                {{ $tc('product_bundle.list.addProductBundle') }}
+            </sw-button>
+            <div
+                    v-for="(bundleProduct, productIndex) in bundle.bundleProducts"
+                    :key="`product-${index}-${productIndex}`"
+                    class="bundle-product-entry">
+                <sw-entity-single-select
+                        v-model:value="bundleProduct.productId"
+                        entity="product"
+                        :criteria="productFilter(index)"
+                        :label="$tc('product_bundle.create.selectProduct')"
+                        :placeholder="$tc('product_bundle.create.selectProduct')"
+                        :displayVariants="true"
+                        @change="onProductChange(index, productIndex, bundleProduct)"
+                />
+                <sw-text-field
+                        v-model:value="bundleProduct.quantity"
+                        :label="$tc('product_bundle.list.quantity')"
+                        :placeholder="$tc('product_bundle.create.enterQuantity')"
+                        type="number"
+                        @input="onQuantityChange(index, productIndex, $event.target.value)"
+                />
+            </div>
+        </sw-card>
+        <div class="custom-bundle-button">
+            <sw-button
+                    @click="addNewBundle"
+                    variant="ghost"
+                    class="custom-add-bundle-button">
+                {{ $tc('product_bundle.create.addNewBundle') }}
+            </sw-button>
+        </div>
+    </div>
+{% endblock %}

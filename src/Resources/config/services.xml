@@ -1,0 +1,63 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="BundleConfigurator\Core\Content\ProductBundle\ProductBundleDefinition">
+            <tag name="shopware.entity.definition" entity="product_bundle"/>
+        </service>
+
+        <service
+                id="BundleConfigurator\Core\Content\ProductBundleAssignedProducts\ProductBundleAssignedProductsDefinition">
+            <tag name="shopware.entity.definition" entity="product_bundle_assigned_products"/>
+        </service>
+
+        <service
+                id="BundleConfigurator\Core\Content\ProductBundle\Aggregate\ProductBundleTranslation\ProductBundleTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="product_bundle_translation"/>
+        </service>
+
+        <service id="BundleConfigurator\Core\Content\Product\BundleProductExtension">
+            <tag name="shopware.entity.extension"/>
+        </service>
+
+        <service id="BundleConfigurator\Controller\BundleController" public="true">
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="product_bundle.repository"/>
+            <argument type="service" id="product_bundle_assigned_products.repository"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+         <service id="BundleConfigurator\Controller\CartInfoController" public="true">
+            <tag name="controller.service_arguments"/>
+             <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+        <service id="BundleConfigurator\Storefront\Controller\CustomBundleController" public="true">
+            <argument type="service" id="product_bundle.repository"/>
+            <argument type="service" id="product.repository"/>
+            <tag name="twig.extension"/>
+        </service>
+
+        <service id="BundleConfigurator\Subscriber\CartSubscriber">
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="product_bundle_assigned_products.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+        <service id="BundleConfigurator\Subscriber\CustomerGroupSubscriber" public="true">
+            <argument type="service" id="customer.repository"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+        <service id="BundleConfigurator\Core\Checkout\Cart\CartPriceProcessor">
+            <tag name="shopware.cart.processor" priority="4500"/>
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
+        </service>
+    </services>
+</container>

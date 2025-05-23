@@ -1,0 +1,24 @@
+.custom-bundle-button {
+  display: flex;
+  flex-direction: row;
+  justify-self: start;
+  justify-content: start;
+  margin-bottom: 2vh;
+}
+
+.product-options {
+  color: #189EFF;
+  opacity: 0.8;
+}
+
+.sw-button__add-product {
+  margin-bottom: 2vh;
+}
+
+.bundle-input {
+  margin-top: 40px;
+
+  .sw-field__label {
+    margin-bottom: 8px;
+  }
+}

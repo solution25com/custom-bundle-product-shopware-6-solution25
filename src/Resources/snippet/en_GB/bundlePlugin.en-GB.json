@@ -1,0 +1,19 @@
+{
+    "bundleplugin": {
+        "grouped": {
+            "image": "Image",
+            "productNumber": "Product name",
+            "sku": "SKU:",
+            "variants": "Variants",
+            "stock": "Stock",
+            "quantity": "Quantity",
+            "unit-price": "Unit price",
+            "total-price": "Total price",
+            "selected-items": "items selected",
+            "subtotal": "Subtotal:",
+            "outofstock":"Show Out of Stock",
+            "nostock":"Out of Stock",
+            "brands": "Brands:"
+        }
+    }
+}

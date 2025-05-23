@@ -1,0 +1,108 @@
+@import "~scss/variables";
+
+.sw-cms-el-preview-buy-box {
+    height: 100%;
+    width: 100%;
+    padding: 0 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    &__price {
+        font-size: $font-size-m;
+    }
+
+    &__placeholders {
+        display: grid;
+        grid-template-columns: 10px 1fr;
+        grid-gap: 4px;
+        margin-top: 4px;
+
+        & > .sw-cms-el-preview-buy-box__placeholder {
+            width: 60px;
+            margin: 0;
+
+            &:nth-child(odd) {
+                width: 8px;
+                margin-right: 4px;
+            }
+        }
+    }
+
+    &__placeholder {
+        height: 8px;
+        border-radius: $border-radius-default;
+        background-color: $color-gray-100;
+    }
+
+    &__action {
+        background: $color-gray-300;
+        color: $color-darkgray-200;
+        border-radius: $border-radius-default;
+        text-align: center;
+        font-size: $font-size-xxs;
+        line-height: 26px;
+        width: 100%;
+        margin-top: 4px;
+        align-self: flex-end;
+    }
+    .bundle-select{
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        .select{
+            width: 45%;
+            border: 1px solid #f0f2f5;
+            padding: 5px;
+            border-radius: 4px;
+        }
+    }
+}
+.bundle-select-preview{
+    .bundle-select{
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        padding: 10px;
+        .select{
+            width: 48%;
+            border: 1px solid #f0f2f5;
+            padding: 3px;
+            border-radius: 4px;
+            margin-bottom: 2px;
+        }
+    }
+    .title{
+        font-weight: 600;
+        padding-left: 10px;
+        margin-bottom: 1px;
+    }
+    .description{
+        padding-left: 10px;
+    }
+    .price,button{
+        font-size: 12px;
+        padding-left: 10px;
+        font-weight: 600;
+    }
+    .buy-button{
+        padding: 4px;
+        margin: 5px;
+        border-radius: 4px;
+        background-color: #f5f5f5;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        .quantity{
+            font-size: 12px;
+        }
+    }
+    .button{
+        color: white;
+        background: red;
+        width: fit-content;
+        padding: 5px;
+        border-radius: 4px;
+        font-size: 10px;
+    }
+}

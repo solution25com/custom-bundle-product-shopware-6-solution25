@@ -1,0 +1,70 @@
+{% block bundles_select %}
+    {% set bundles = getBundleSet(page.product.id) %}
+    {% set grossPrice = page.product.price.first().gross %}
+    {% set activeCurrency = page.header.activeCurrency.symbol %}
+
+    {% if bundles is not empty %}
+        <div class="bundle-selection" data-dropdown>
+            <p class="bundle-title">Products in bundle</p>
+            <div class="bundles-select-group"
+                 id="bundle-price-container"
+                 data-bundle-price-update-options="{{ grossPrice }}"
+                 data-active-currency="{{ activeCurrency }}" data-max-quantity
+                 data-bundles-query="{{ app.request.query.get('bundles')|e('html_attr') }}">
+
+                {% for bundle in bundles %}
+                    <div class="bundle-set">
+                        <div class="bundles-select">
+                            <button class="bundle-dropdown-toggle" type="button" data-bundle-id="{{ bundle.id }}">
+                                {{ bundle.name }}
+                            </button>
+                            <ul class="dropdown-options"
+                                id="{{ bundle.id }}"
+                                data-discount="{{ bundle.discount | default(0) }}"
+                                data-discount-type="{{ bundle.discountType | default('none') }}">
+                                {% for assignedProduct in bundle.bundleAssignedProducts.elements %}
+                                    <li class="{% if assignedProduct.product.stock < 1 %}no-quantity-list{% endif %}">
+                                        <span class="d-none max-quantity">{{ assignedProduct.product.stock }}</span>
+                                        <input type="checkbox"
+                                               value="{{ assignedProduct.product.id }}"
+                                               class="bundle-checkbox"
+                                               {% if assignedProduct.product.stock < 1 %}disabled{% endif %}
+                                               id="checkbox-{{ assignedProduct.product.id }}"
+                                               data-bundle-quantity="{{ assignedProduct.quantity }}"
+                                               {% for price in assignedProduct.product.prices %}
+                                                   {% if price.quantityStart == 1 and price.ruleId in context.areaRuleIds.product %}
+                                                       data-price="{{ price.price.elements|first.gross }}"
+                                                   {% endif %}
+                                               {% endfor %}>
+
+                                        <label for="checkbox-{{ assignedProduct.product.id }}">
+                                            {{ assignedProduct.product.name }} {{ assignedProduct.product.variation|first.group }} {{ assignedProduct.product.variation|first.option }}
+                                        </label>
+                                    </li>
+                                    <div class="price-tiers d-none"
+                                         data-id="{{ assignedProduct.product.id }}"
+                                         {% for price in assignedProduct.product.prices %}
+                                             {% if price.ruleId in context.areaRuleIds.product %}
+                                                 data-price{{ price.quantityStart }}="{{ price.price.elements|first.gross }}"
+                                             {% endif %}
+                                         {% endfor %}>
+                                    </div>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <input type="hidden" id="sub-bundle-price" name="bundle-price" value="{{ grossPrice }}">
+
+        <div id="bundle-price-display" class="bundle-price" style="display: none;">
+            {% if hasZeroPrice %}
+                <strong id="bundle-price" class="h2">{{ grossPrice }} {{ activeCurrency }}</strong>
+            {% else %}
+                <strong id="bundle-price" class="h2">{{ grossPrice }} {{ activeCurrency }}</strong>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,43 @@
+{% block block_gallery_buybox %}
+    {% block block_gallery_buybox_column_left %}
+        {% set element = block.slots.getSlot('left') %}
+        {% set config = element.fieldConfig.elements %}
+        <div class="col-lg-5 product-detail-media" data-cms-element-id="{{ element.id }}">
+            {% block block_gallery_buybox_column_left_inner %}
+                {% sw_include '@Storefront/storefront/element/cms-element-' ~ element.type ~ '.html.twig' ignore missing
+                    with {
+                    isProduct: config.sliderItems.value == 'product.media' and config.sliderItems.source == 'mapped',
+                    startIndexThumbnails: 1,
+                    startIndexSlider: 1
+                } %}
+            {% endblock %}
+        </div>
+    {% endblock %}
+    {% block block_gallery_buybox_column_right %}
+        {% set element = block.slots.getSlot('right') %}
+        <div class="col-lg-7 product-detail-buy" data-cms-element-id="{{ element.id }}">
+            {% block block_gallery_buybox_column_right_inner %}
+                {% sw_include '@Storefront/storefront/element/cms-element-buybox-grouped-product.html.twig' ignore missing %}
+            {% endblock %}
+        </div>
+    {% endblock %}
+    <div class="product-grouped" data-item-calc data-add-product sticky-button>
+        <div class="grouped-product-table">
+            {% block bundles_select %}
+                {% sw_include '@BundlesConfigurator/storefront/component/grouped-products.html.twig' ignore missing %}
+            {% endblock %}
+        </div>
+        {# <div class="grouped-product-action" data-add-all-cart>
+            <div class="item">
+                <div class="selected">
+                    <span class="selected-items"></span> {{ "bundleplugin.grouped.selected-items"|trans|sw_sanitize }}
+                </div>
+                <p class="price">{{ "bundleplugin.grouped.total-price"|trans|sw_sanitize }} <span class="total-calculated-price"></span></p>
+            </div>
+            <div class="action">
+                <a class="add-all">{{ 'listing.boxAddProduct'|trans|sw_sanitize }}</a>
+            </div>
+        </div> #}
+    </div>
+
+{% endblock %}

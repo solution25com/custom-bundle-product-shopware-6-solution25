@@ -1,0 +1,30 @@
+{% sw_extends '@Storefront/storefront/component/line-item/type/product.html.twig' %}
+
+{% block component_line_item_type_product_number %}
+    {{ parent() }}
+
+    {% if lineItem.payload['selected_bundles'] is defined and lineItem.payload['selected_bundles']['bundles'] is defined %}
+        {% for bundleId, bundleItems in lineItem.payload['selected_bundles']['bundles'] %}
+            {% set bundleDetails = getBundleTotal(lineItem.payload['selected_bundles']['bundles'], bundleId) %}
+
+            {% if bundleDetails is not null %}
+                <div class="bundle-info">
+                    <strong>Bundle Name:</strong> {{ bundleDetails.name }}
+                    <br>
+                    <strong>Total Price:</strong> €{{ bundleDetails.total | number_format(2, '.', '') }}
+                    <br>
+                    <strong>Selected Products:</strong>
+                    <ul>
+                        {% for product in bundleDetails.selectedProducts %}
+                            <li>{{ product }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% else %}
+                <p>No details found for bundle {{ bundleId }}.</p>
+            {% endif %}
+        {% endfor %}
+    {% else %}
+
+    {% endif %}
+{% endblock %}
