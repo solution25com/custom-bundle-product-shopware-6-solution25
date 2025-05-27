@@ -39,14 +39,14 @@ After installation, activate the plugin in the Shopware 6 administration panel.
 - Assign the required blocks (including the **Buy box**) to this layout.
 - Save the layout.
 
-**See screenshot:** `screenshots/layout-creation.png`
+![administration_layout_configuration (1)](https://github.com/user-attachments/assets/87d1d0e2-cc31-4758-bda8-e3573fe6211f)
 
 ### 2️⃣ Assign Layout to a Product
 - Go to **Catalog > Products** in administration.
 - Edit the product where you want to display the bundle.
 - In the **Layout** tab, assign the newly created bundle layout to this product.
 
-**See screenshot:** `screenshots/assign-layout.png`
+![administration_bundle_set_create (1)](https://github.com/user-attachments/assets/b4e4c17a-be4b-4648-aa45-48ac92c11de9)
 
 ### 3️⃣ Configure Bundles
 - In the **Bundle** tab within the product edit page:
@@ -56,18 +56,17 @@ After installation, activate the plugin in the Shopware 6 administration panel.
   - Add products to the bundle and adjust the quantities as needed.
   - Save the bundle.
 
-**See screenshot:** `screenshots/bundle-creation.png`
+![administration_quantity_edit](https://github.com/user-attachments/assets/65874b3a-7d0f-454c-b454-e0df719582f5)
 
 ### 4️⃣ Adjust Quantity in Bundles
 - After adding products to the bundle, you can change the quantity of each product directly in the **Bundle** tab.
 
-**See screenshot:** `screenshots/edit-quantity.png`
 
 ### 5️⃣ Storefront Display
 - Once configured, the bundles will be visible in the storefront for the assigned product.
 - The displayed price will be automatically calculated based on the selected bundle products and discounts.
 
-**See screenshot:** `screenshots/storefront-view.png`
+![storefront_bundle](https://github.com/user-attachments/assets/d8dc1ce6-f242-477f-b240-89e8f4e863d5)
 
 ---
 
