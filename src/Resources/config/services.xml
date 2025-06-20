@@ -31,12 +31,14 @@
                 <argument type="service" id="service_container"/>
             </call>
         </service>
-         <service id="BundleConfigurator\Controller\CartInfoController" public="true">
+
+        <service id="BundleConfigurator\Controller\CartInfoController" public="true">
             <tag name="controller.service_arguments"/>
-             <call method="setContainer">
+            <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
         </service>
+
         <service id="BundleConfigurator\Storefront\Controller\CustomBundleController" public="true">
             <argument type="service" id="product_bundle.repository"/>
             <argument type="service" id="product.repository"/>
@@ -46,18 +48,18 @@
         <service id="BundleConfigurator\Subscriber\CartSubscriber">
             <argument type="service" id="product.repository"/>
             <argument type="service" id="request_stack"/>
-            <argument type="service" id="product_bundle_assigned_products.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <tag name="kernel.event_subscriber"/>
         </service>
+
         <service id="BundleConfigurator\Subscriber\CustomerGroupSubscriber" public="true">
             <argument type="service" id="customer.repository"/>
             <tag name="kernel.event_subscriber"/>
         </service>
+
         <service id="BundleConfigurator\Core\Checkout\Cart\CartPriceProcessor">
             <tag name="shopware.cart.processor" priority="4500"/>
-            <argument type="service" id="product.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
         </service>
+
     </services>
 </container>

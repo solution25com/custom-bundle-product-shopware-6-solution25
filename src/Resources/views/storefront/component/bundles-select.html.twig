@@ -1,7 +1,49 @@
 {% block bundles_select %}
     {% set bundles = getBundleSet(page.product.id) %}
-    {% set grossPrice = page.product.price.first().gross %}
     {% set activeCurrency = page.header.activeCurrency.symbol %}
+
+    {% set hasCustomPrice = false %}
+    {% set hasAdvancedPrice = false %}
+    {% set customGrossPrice = null %}
+    {% set advancedGrossPrice = null %}
+    {% set normalGrossPrice = null %}
+
+    {% for customPrice in product.extensions.customPrice.elements %}
+        {% if customPrice.customerId == context.customer.id and customPrice.productId == product.id %}
+            {% set customGrossPrice = (customPrice.price|first)|first.gross %}
+            {% set hasCustomPrice = true %}
+            {% break %}
+        {% endif %}
+    {% endfor %}
+
+    {% if not hasCustomPrice %}
+        {% for price in product.prices %}
+            {% if price.quantityStart == 1 %}
+                {% set advancedGrossPrice = price.price.elements|first.gross %}
+                {% set hasAdvancedPrice = true %}
+                {% break %}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    {% if not hasCustomPrice and not hasAdvancedPrice %}
+        {% if product.price is defined and product.price.elements|length > 0 %}
+            {% for normalPrice in product.price.elements %}
+                {% if normalPrice.gross > 0 %}
+                    {% set normalGrossPrice = normalPrice.gross %}
+                    {% break %}
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endif %}
+
+    {% if hasCustomPrice %}
+        {% set grossPrice = customGrossPrice %}
+    {% elseif hasAdvancedPrice %}
+        {% set grossPrice = advancedGrossPrice %}
+    {% else %}
+        {% set grossPrice = normalGrossPrice %}
+    {% endif %}
 
     {% if bundles is not empty %}
         <div class="bundle-selection" data-dropdown>
@@ -11,7 +53,7 @@
                  data-bundle-price-update-options="{{ grossPrice }}"
                  data-active-currency="{{ activeCurrency }}" data-max-quantity
                  data-bundles-query="{{ app.request.query.get('bundles')|e('html_attr') }}">
-
+           
                 {% for bundle in bundles %}
                     <div class="bundle-set">
                         <div class="bundles-select">
@@ -21,9 +63,13 @@
                             <ul class="dropdown-options"
                                 id="{{ bundle.id }}"
                                 data-discount="{{ bundle.discount | default(0) }}"
-                                data-discount-type="{{ bundle.discountType | default('none') }}">
+                                data-discount-type="{{ bundle.discountType | default('none') }}"
+                                data-bundle-name="{{ bundle.name }}"
+                                data-parent-product-id="{{ page.product.id }}"
+                            >
                                 {% for assignedProduct in bundle.bundleAssignedProducts.elements %}
-                                    <li class="{% if assignedProduct.product.stock < 1 %}no-quantity-list{% endif %}">
+                                
+                                    <li class="{% if assignedProduct.product.stock < 1 or assignedProduct.quantity < 1  %}no-quantity-list{% endif %}">
                                         <span class="d-none max-quantity">{{ assignedProduct.product.stock }}</span>
                                         <input type="checkbox"
                                                value="{{ assignedProduct.product.id }}"
@@ -31,23 +77,81 @@
                                                {% if assignedProduct.product.stock < 1 %}disabled{% endif %}
                                                id="checkbox-{{ assignedProduct.product.id }}"
                                                data-bundle-quantity="{{ assignedProduct.quantity }}"
-                                               {% for price in assignedProduct.product.prices %}
-                                                   {% if price.quantityStart == 1 and price.ruleId in context.areaRuleIds.product %}
-                                                       data-price="{{ price.price.elements|first.gross }}"
-                                                   {% endif %}
-                                               {% endfor %}>
+                                               
+                                               {% set customPriceFound = false %}
+                                               {% set advancedPriceFound = false %}
 
+                                               {% for customPrice in assignedProduct.product.extensions.customPrice.elements %}
+                                                   {% if customPrice.customerId == context.customer.id and customPrice.productId == assignedProduct.product.id  %}
+                                                       data-price="{{ (customPrice.price|first)|first.gross }}"
+                                                       {% set customPriceFound = true %}
+                                                       {% break %}
+                                                   {% endif %}
+                                               {% endfor %}
+
+                                               {% if not customPriceFound %}
+                                                   {% for price in assignedProduct.product.prices %}
+                                                       {% if price.quantityStart == 1 and price.rule.id == price.ruleId and price.rule.id in context.areaRuleIds.product %}
+                                                           data-price="{{ price.price.elements|first.gross }}"
+                                                           {% set advancedPriceFound = true %}
+                                                           {% break %}
+                                                       {% endif %}
+                                                   {% endfor %}
+                                               {% endif %}
+
+                                               {% if not customPriceFound and not advancedPriceFound %}
+                                                   {% if assignedProduct.product.price is defined and assignedProduct.product.price.elements|length > 0 %}
+                                                       {% for normalPrice in assignedProduct.product.price.elements %}
+                                                           {% if normalPrice.gross > 0 %}
+                                                               data-price="{{ normalPrice.gross }}"
+                                                               {% break %}
+                                                           {% endif %}
+                                                       {% endfor %}
+                                                   {% endif %}
+                                               {% endif %}
+                                        >
                                         <label for="checkbox-{{ assignedProduct.product.id }}">
                                             {{ assignedProduct.product.name }} {{ assignedProduct.product.variation|first.group }} {{ assignedProduct.product.variation|first.option }}
                                         </label>
                                     </li>
+
                                     <div class="price-tiers d-none"
+                                
                                          data-id="{{ assignedProduct.product.id }}"
-                                         {% for price in assignedProduct.product.prices %}
-                                             {% if price.ruleId in context.areaRuleIds.product %}
-                                                 data-price{{ price.quantityStart }}="{{ price.price.elements|first.gross }}"
+                                         {% set customPriceFound = false %}
+                                         {% set advancedPriceFound = false %}
+
+                                         {% for customPrice in assignedProduct.product.extensions.customPrice.elements %}
+                                             {% if customPrice.customerId == context.customer.id and customPrice.productId == assignedProduct.product.id %}
+                                                 data-price-custom="{{ (customPrice.price|first)|first.gross }}"
+                                                 {% set customPriceFound = true %}
+                                                 {% break %}
                                              {% endif %}
-                                         {% endfor %}>
+                                         {% endfor %}
+
+                                         {% if not customPriceFound %}
+                                             {% for price in assignedProduct.product.prices %}
+                                               
+                                                 {% if price.quantityStart == 1 and price.rule.id == price.ruleId and price.rule.id in context.areaRuleIds.product %}
+                                                     data-price-advanced="{{ price.price.elements|first.gross }}"
+                                                     {% set advancedPriceFound = true %}
+                                                     {% break %}
+                                                 {% endif %}
+                                             {% endfor %}
+                                         {% endif %}
+
+                                         {% if not customPriceFound and not advancedPriceFound %}
+                                        
+                                             {% if assignedProduct.product.price is defined and assignedProduct.product.price.elements|length > 0 %}
+                                                 {% for normalPrice in assignedProduct.product.price.elements %}
+                                                     {% if normalPrice.gross > 0 %}
+                                                         data-price-normal="{{ normalPrice.gross }}"
+                                                         {% break %}
+                                                     {% endif %}
+                                                 {% endfor %}
+                                             {% endif %}
+                                         {% endif %}
+                                    >
                                     </div>
                                 {% endfor %}
                             </ul>
@@ -57,13 +161,10 @@
             </div>
         </div>
 
-        <input type="hidden" id="sub-bundle-price" name="bundle-price" value="{{ grossPrice }}">
-
-        <div id="bundle-price-display" class="bundle-price" style="display: none;">
-            {% if hasZeroPrice %}
+        <div id="bundle-price-display" class="bundle-price">
+            {% if grossPrice is not null %}
                 <strong id="bundle-price" class="h2">{{ grossPrice }} {{ activeCurrency }}</strong>
-            {% else %}
-                <strong id="bundle-price" class="h2">{{ grossPrice }} {{ activeCurrency }}</strong>
+                <input type="hidden" id="sub-bundle-price" name="bundle-price" value="{{ grossPrice }}">
             {% endif %}
         </div>
     {% endif %}

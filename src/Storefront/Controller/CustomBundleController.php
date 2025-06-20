@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BundleConfigurator\Storefront\Controller;
 
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -29,7 +30,9 @@ class CustomBundleController extends AbstractExtension
     {
         return [
             new TwigFunction('getBundleSet', [$this, 'getBundleSet']),
-            new TwigFunction('getBundleTotal', [$this, 'getBundleTotal'])
+            new TwigFunction('getBundleTotal', [$this, 'getBundleTotal']),
+            new TwigFunction('getShoppingListStock',[$this,'getShoppingListStock']),
+            new TwigFunction('compareShoppingListStock', [$this, 'compareShoppingListStock']),
         ];
     }
 
@@ -41,7 +44,9 @@ class CustomBundleController extends AbstractExtension
         $criteria = new Criteria();
         $criteria->addAssociation('bundleAssignedProducts');
         $criteria->addAssociation('bundleAssignedProducts.product.prices');
+        $criteria->addAssociation('bundleAssignedProducts.product.prices.rule');
         $criteria->addAssociation('bundleAssignedProducts.product.options.group');
+        $criteria->addAssociation('bundleAssignedProducts.product.customPrice');
         $criteria->addAssociation('bundleAssignedProducts.product.options');
         $criteria->addAssociation('bundleAssignedProducts.product.properties');
         $criteria->addFilter(new EqualsFilter('productId', $productId));
@@ -90,6 +95,67 @@ class CustomBundleController extends AbstractExtension
         ];
     }
 
+    public function getShoppingListStock(array $productItems): array
+    {
+        $referencedIds = array_map(fn($item) => $item['referencedId'], $productItems);
+
+        $criteria = new Criteria($referencedIds);
+        $criteria->addAssociation('prices');
+
+        $products = $this->productRepository
+            ->search($criteria, Context::createDefaultContext())
+            ->getEntities();
+
+        $filteredItems = [];
+
+        foreach ($productItems as $key => $item) {
+            $product = $products->get($item['referencedId']);
+
+            if (!$product || $product->getStock() <= 0) {
+                continue;
+            }
+
+            $price = $product->getPrice()?->first();
+            $item['price'] = $price ? $price->getGross() : 0.0;
+
+            $filteredItems[$key] = $item;
+        }
+
+        return $filteredItems;
+    }
+
+    public function compareShoppingListStock(array $productItems,  $shoppingListItems): array
+    {
+
+        $validProductKeys = array_keys($productItems);
+
+        $result = [];
+
+        foreach ($shoppingListItems->getElements() as $key => $item) {
+            if (!in_array($key, $validProductKeys, true)) {
+
+                $price = $item->getPrice();
+
+                if ($price instanceof CalculatedPrice) {
+                    $zeroPrice = new CalculatedPrice(
+                        0.0,
+                        0.0,
+                        $price->getCalculatedTaxes(),
+                        $price->getTaxRules(),
+                        $price->getQuantity()
+                    );
+
+                    $item->setPrice($zeroPrice);
+                }
+            }
+
+            $result[$key] = $item;
+        }
+
+        return $result;
+    }
+
+
     /**
      * Get the name of a specific bundle
      */
@@ -106,10 +172,32 @@ class CustomBundleController extends AbstractExtension
     private function getProductName(string $productId): ?string
     {
         $criteria = new Criteria([$productId]);
+        $criteria->addAssociation('options');
+        $criteria->addAssociation('options.group.name');
+
         $bundle = $this->productRepository
             ->search($criteria, Context::createDefaultContext())
             ->first();
 
-        return $bundle ? $bundle->getTranslation('name') : null;
+        if (!$bundle) {
+            return null;
+        }
+
+        $productName = $bundle->getTranslation('name') ?? '';
+
+        $variantSelection = $bundle->getOptions()?->getElements() ?? [];
+
+        $firstOption = reset($variantSelection);
+        if (!$firstOption) {
+            return trim($productName);
+        }
+
+        $groupName = $firstOption->getGroup()?->getName() ?? '';
+        $optionName = $firstOption->getName() ?? '';
+
+        $variantFullName = trim("{$productName} {$groupName} {$optionName}");
+
+        return $variantFullName !== '' ? $variantFullName : null;
     }
+
 }

@@ -18,5 +18,10 @@
         "psr-4": {
             "BundleConfigurator\\": "src/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "BundleConfigurator\\Tests\\": "tests/"
+        }
     }
 }

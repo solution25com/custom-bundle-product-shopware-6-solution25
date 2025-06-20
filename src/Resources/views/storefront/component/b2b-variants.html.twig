@@ -1,314 +1,340 @@
 {% block bundles_select %}
     {% set grossPrice = page.product.price.first().gross %}
     {% set activeCurrency = page.header.activeCurrency.symbol %}
-    {% if page.product.variation %}
-    <div class="grouped-product-sorting mb-4">
-    <label for="grouped-product-sorting-select" class="form-label">Sort by:</label>
-    <select id="grouped-product-sorting-select" class="form-select">
-        <option value="alphabetical" selected>Alphabetical (A-Z)</option>
-        <option value="reverse-alphabetical">Alphabetical Z-A</option>
-        <option value="price-lowest">Price: Lowest first</option>
-        <option value="price-highest">Price: Highest first</option>
-        <option value="stock">Stock</option>
-    </select>
-        </div>
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const sortSelect = document.getElementById('grouped-product-sorting-select');
-                const container = document.getElementById('bundle-price-container');
-                const cards = Array.from(container.querySelectorAll('.card.product-box'));
+    {% set anyActive = false %}
+        {% for variant in page.extensions.variants %}
+            {% for key, variantProduct in variant %}
+                {% if variantProduct.active %}
+                    {% set anyActive = true %}
+                    {% break %}
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+            {% if anyActive %}
+                {% if page.product.variation %}
+                    <div class="grouped-product-sorting mb-4">
+                        <label for="grouped-product-sorting-select" class="form-label">Sort by:</label>
+                        <select id="grouped-product-sorting-select" class="form-select">
+                            <option value="alphabetical" selected>Alphabetical (A-Z)</option>
+                            <option value="reverse-alphabetical">Alphabetical Z-A</option>
+                            <option value="price-lowest">Price: Lowest first</option>
+                            <option value="price-highest">Price: Highest first</option>
+                            <option value="stock">Stock</option>
+                        </select>
+                        </div>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function () {
+                                const sortSelect = document.getElementById('grouped-product-sorting-select');
+                                const container = document.getElementById('bundle-price-container');
+                                const cards = Array.from(container.querySelectorAll('.card.product-box'));
 
-                function getProductVariantName(card) {
-                    const variantEl = card.querySelector('.fourth-row');
-                    return variantEl ? variantEl.textContent.trim().toLowerCase() : '';
-                }
+                                function getProductVariantName(card) {
+                                    const variantEl = card.querySelector('.fourth-row');
+                                    return variantEl ? variantEl.textContent.trim().toLowerCase() : '';
+                                }
 
-                function getProductPrice(card) {
-                    const priceEl = card.querySelector('.price-product');
-                    if (priceEl) {
-                        const priceText = priceEl.textContent.trim().replace(/[^\d.,]/g, '').replace(',', '.');
-                        return parseFloat(priceText) || 0;
-                    }
-                    return 0;
-                }
+                                function getProductPrice(card) {
+                                    const priceEl = card.querySelector('.price-product');
+                                    if (priceEl) {
+                                        const priceText = priceEl.textContent.trim().replace(/[^\d.,]/g, '').replace(',', '.');
+                                        return parseFloat(priceText) || 0;
+                                    }
+                                    return 0;
+                                }
 
-                function getProductStock(card) {
-                    const stockEl = card.querySelector('.stock');
-                    if (stockEl) {
-                        const stockText = stockEl.textContent.trim().replace(/[^\d]/g, '');
-                        return parseInt(stockText, 10) || 0;
-                    }
-                    return 0;
-                }
+                                function getProductStock(card) {
+                                    const stockEl = card.querySelector('.stock');
+                                    if (stockEl) {
+                                        const stockText = stockEl.textContent.trim().replace(/[^\d]/g, '');
+                                        return parseInt(stockText, 10) || 0;
+                                    }
+                                    return 0;
+                                }
 
-                function sortCards(criteria) {
-                    let sortedCards = [];
+                                function sortCards(criteria) {
+                                    let sortedCards = [];
 
-                    if (criteria === 'alphabetical') {
-                        sortedCards = cards.sort((a, b) => getProductVariantName(a).localeCompare(getProductVariantName(b)));
-                    } else if (criteria === 'reverse-alphabetical') {
-                        sortedCards = cards.sort((a, b) => getProductVariantName(b).localeCompare(getProductVariantName(a)));
-                    } else if (criteria === 'price-lowest') {
-                        sortedCards = cards.sort((a, b) => getProductPrice(a) - getProductPrice(b));
-                    } else if (criteria === 'price-highest') {
-                        sortedCards = cards.sort((a, b) => getProductPrice(b) - getProductPrice(a));
-                    } else if (criteria === 'stock') {
-                        sortedCards = cards.sort((a, b) => getProductStock(b) - getProductStock(a));
-                    }
+                                    if (criteria === 'alphabetical') {
+                                        sortedCards = cards.sort((a, b) => getProductVariantName(a).localeCompare(getProductVariantName(b)));
+                                    } else if (criteria === 'reverse-alphabetical') {
+                                        sortedCards = cards.sort((a, b) => getProductVariantName(b).localeCompare(getProductVariantName(a)));
+                                    } else if (criteria === 'price-lowest') {
+                                        sortedCards = cards.sort((a, b) => getProductPrice(a) - getProductPrice(b));
+                                    } else if (criteria === 'price-highest') {
+                                        sortedCards = cards.sort((a, b) => getProductPrice(b) - getProductPrice(a));
+                                    } else if (criteria === 'stock') {
+                                        sortedCards = cards.sort((a, b) => getProductStock(b) - getProductStock(a));
+                                    }
 
-                    container.innerHTML = '';
-                    sortedCards.forEach(card => container.appendChild(card));
-                }
+                                    container.innerHTML = '';
+                                    sortedCards.forEach(card => container.appendChild(card));
+                                }
 
-                sortSelect.addEventListener('change', (event) => {
-                    sortCards(event.target.value);
-                });
+                                sortSelect.addEventListener('change', (event) => {
+                                    sortCards(event.target.value);
+                                });
 
-                sortCards('alphabetical');
-            });
-        </script>
-        <div class="grouped-product-selection" data-dropdown>
-            <div class="main-title" d-none>
-                {% for bundle in bundles %}
-                    <p>{{ bundle.bundleAssignedProducts.elements|length }} options available</p>
-                {% endfor %}
-                <div class="">
-                    <label class="switch" data-bundle-stock-switch>
-                        <input type="checkbox" id="switchInput">
-                        <span class="slider"></span>
-                    </label>
-                    <span>Hide Out of Stock</span>
-                </div>
+                                sortCards('alphabetical');
+                            });
+                        </script>
+                        <div class="grouped-product-selection" data-dropdown>
+                            <div class="main-title" d-none>
+                                {% for bundle in bundles %}
+                                    <p>{{ bundle.bundleAssignedProducts.elements|length }} options available</p>
+                                {% endfor %}
+                                <div class="">
+                                    <label class="switch" data-bundle-stock-switch>
+                                        <input type="checkbox" id="switchInput">
+                                        <span class="slider"></span>
+                                    </label>
+                                    <span>Hide Out of Stock</span>
+                                </div>
 
-            </div>
+                            </div>
 
-            <div class="title">
-                <p class="first-row d-none d-lg-block">{{ "bundleplugin.grouped.image"|trans|sw_sanitize }}</p>
-                <p class="second-row">{{ "bundleplugin.grouped.productNumber"|trans|sw_sanitize }}</p>
-                <p class="third-row d-none d-lg-block">{{ "bundleplugin.grouped.sku"|trans|sw_sanitize }}</p>
-                  {% set variationGroup = page.product.variation[0].group ?? '' %}
-                        <p class="fourth-row">
-                            {% if variationGroup in ['Color', 'Flavor'] %}
-                                {{ "Color"|trans|sw_sanitize }}
-                            {% else %}
-                                {{ "Size"|trans|sw_sanitize }}
-                            {% endif %}
-                        </p>
+                            <div class="title">
+                                <p class="first-row d-none d-lg-block">{{ "bundleplugin.grouped.image"|trans|sw_sanitize }}</p>
+                                <p class="second-row">{{ "bundleplugin.grouped.productNumber"|trans|sw_sanitize }}</p>
+                                <p class="third-row d-none d-lg-block">{{ "bundleplugin.grouped.sku"|trans|sw_sanitize }}</p>
+                                {% set variationGroup = page.product.variation[0].group ?? '' %}
+                                        <p class="fourth-row">
+                                            {% if variationGroup in ['Color', 'Flavor'] %}
+                                                {{ "Color"|trans|sw_sanitize }}
+                                            {% else %}
+                                                {{ "Size"|trans|sw_sanitize }}
+                                            {% endif %}
+                                        </p>
 
 
-                <p class="fifth-row d-none d-lg-block">{{ "bundleplugin.grouped.stock"|trans|sw_sanitize }}</p>
-                <p class="sixth-row">{{ "bundleplugin.grouped.quantity"|trans|sw_sanitize }}</p>
-                <p class="seventh-row">{{ "bundleplugin.grouped.unit-price"|trans|sw_sanitize }}</p>
-                <p class="last-row d-none d-lg-block">{{ "bundleplugin.grouped.total-price"|trans|sw_sanitize }}</p>
-            </div>
+                                <p class="fifth-row d-none d-lg-block">{{ "bundleplugin.grouped.stock"|trans|sw_sanitize }}</p>
+                                <p class="sixth-row">{{ "bundleplugin.grouped.quantity"|trans|sw_sanitize }}</p>
+                                <p class="seventh-row">{{ "bundleplugin.grouped.unit-price"|trans|sw_sanitize }}</p>
+                                <p class="last-row d-none d-lg-block">{{ "bundleplugin.grouped.total-price"|trans|sw_sanitize }}</p>
+                            </div>
 
-            <div class="grouped-product-table"
-                 id="bundle-price-container"
-                 data-grouped-price-update
-                 data-bundle-price-update-options="{{ grossPrice }}"
-                 data-active-currency="{{ activeCurrency }}"
-                 data-bundles-query="{{ app.request.query.get('bundles')|e('html_attr') }}">
-                {% for variant in page.extensions.variants %}
-                    {% for key, variantProduct in variant %}
-                        {% block component_product_box %}
-                            {% set product = variantProduct %}
+                            <div class="grouped-product-table"
+                                id="bundle-price-container"
+                                data-grouped-price-update
+                                data-bundle-price-update-options="{{ grossPrice }}"
+                                data-active-currency="{{ activeCurrency }}"
+                                data-bundles-query="{{ app.request.query.get('bundles')|e('html_attr') }}">
+                                {% for variant in page.extensions.variants %}
+                                    {% for key, variantProduct in variant %}
+                                        {% block component_product_box %}
+                                            {% set product = variantProduct %}
 
-                            {% set sportsMediaId = product.coverId %}
-                            {% if sportsMediaId is not null %}
-                                {% set mediaId = page.extensions.variantMediaIds[product.id] %}
-                                {% set mediaCollection = searchMedia([mediaId], context.context) %}
-                                {% set sportsMedia = mediaCollection.get(mediaId) %}
-                            {% else %}
-                                {% set sportsMedia = null %}
-                            {% endif %}
+                                            {% set sportsMediaId = product.coverId %}
+                                           {% set mediaId = page.extensions.variantMediaIds[product.id] ?? null %}
+                                                {% if sportsMediaId is not null and mediaId is not null %}
+                                                    {% set mediaCollection = searchMedia([mediaId], context.context) %}
+                                                    {% set sportsMedia = mediaCollection.get(mediaId) %}
+                                                {% else %}
+                                                    {% set sportsMedia = null %}
+                                                {% endif %}
 
-                            {% if product %}
-                                    
 
-                                {% set name = product.translated.name %}
-                                {% set id = product.id %}
-                                {% set cover = sportsMedia %}
-                                {% set variation = product.variation %}
-                                {% set displayParent = product.variantListingConfig.displayParent and product.parentId === null %}
-                                {% set stock = product.availableStock %}
-                                    <div class="card product-box box-{{ layout }} {% if stock < 1 %}out-of-stock{% endif %}"
-                                        data-grouped-price-update
-                                        data-product-id="{{ product.id }}">
+                                            {% if product.active %}
+                                                {% set name = product.translated.name %}
+                                                {% set id = product.id %}
+                                                {% set cover = sportsMedia %}
+                                                {% set variation = product.variation %}
+                                                {% set displayParent = product.variantListingConfig.displayParent and product.parentId === null %}
+                                                {% set stock = product.availableStock %}
+                                                    <div class="card product-box box-{{ layout }} {% if stock < 1 %}out-of-stock{% endif %}"
+                                                        data-grouped-price-update
+                                                        data-product-id="{{ product.id }}">
 
-                                        <input type="hidden" name="lineItems[{{ loop.index }}][id]" value="{{ product.id }}">
-                                        <input type="hidden" name="lineItems[{{ loop.index }}][referencedId]" value="{{ product.id }}">
-                                        <input type="hidden" name="lineItems[{{ loop.index }}][type]" value="product">
-                                        <input type="hidden" name="lineItems[{{ loop.index }}][quantity]" value="0">
+                                                        <input type="hidden" name="lineItems[{{ loop.index }}][id]" value="{{ product.id }}">
+                                                        <input type="hidden" name="lineItems[{{ loop.index }}][referencedId]" value="{{ product.id }}">
+                                                        <input type="hidden" name="lineItems[{{ loop.index }}][type]" value="product">
+                                                        <input type="hidden" name="lineItems[{{ loop.index }}][quantity]" value="0">
 
-                                    {% block component_product_box_content %}
-                                        <div class="card-body {% if stock < 1 %}no-stock{% endif %}">
-                                        
+                                                    {% block component_product_box_content %}
+                                                        <div class="card-body {% if stock < 1 %}no-stock{% endif %}">
 
-                                            {% block component_product_box_image %}
-                                                <div class="first-row d-none d-lg-block">
-                                                    <div class="product-image-wrapper">
-                                                        {% set displayMode = displayMode ?: 'standard' %}
 
-                                                        {% if layout == 'image' and displayMode == 'standard' %}
-                                                            {% set displayMode = 'cover' %}
-                                                        {% endif %}
+                                                            {% block component_product_box_image %}
+                                                                <div class="first-row d-none d-lg-block">
+                                                                    <div class="product-image-wrapper">
+                                                                        {% set displayMode = displayMode ?: 'standard' %}
 
-                                                        {% block component_product_box_image_link %}
-                                                           
-                                                                {% block component_product_box_image_link_inner %}
-                                                                    {% if cover.url and cover.isSpatialObject() == false %}
-                                                                        {% set attributes = {
-                                                                            class: 'product-image is-' ~ displayMode,
-                                                                            title: (cover.translated.title ?: name)
-                                                                        } %}
+                                                                        {% if layout == 'image' and displayMode == 'standard' %}
+                                                                            {% set displayMode = 'cover' %}
+                                                                        {% endif %}
 
-                                                                        {% if cover.getMediaType().getName() === 'VIDEO' %}
-                                                                            {% if config('core.listing.autoplayVideoInListing') %}
-                                                                                {% set attributes = attributes|merge({
-                                                                                    autoplay: true,
-                                                                                    loop: true
-                                                                                }) %}
-                                                                            {% endif %}
+                                                                        {% block component_product_box_image_link %}
 
-                                                                            {% block component_product_box_video %}
-                                                                                {% sw_include '@Storefront/storefront/utilities/video.html.twig' with {
-                                                                                    media: cover,
-                                                                                    attributes: attributes
-                                                                                } %}
-                                                                            {% endblock %}
+                                                                                {% block component_product_box_image_link_inner %}
+                                                                                    {% if cover.url and cover.isSpatialObject() == false %}
+                                                                                        {% set attributes = {
+                                                                                            class: 'product-image is-' ~ displayMode,
+                                                                                            title: (cover.translated.title ?: name)
+                                                                                        } %}
+
+                                                                                        {% if cover.getMediaType().getName() === 'VIDEO' %}
+                                                                                            {% if config('core.listing.autoplayVideoInListing') %}
+                                                                                                {% set attributes = attributes|merge({
+                                                                                                    autoplay: true,
+                                                                                                    loop: true
+                                                                                                }) %}
+                                                                                            {% endif %}
+
+                                                                                            {% block component_product_box_video %}
+                                                                                                {% sw_include '@Storefront/storefront/utilities/video.html.twig' with {
+                                                                                                    media: cover,
+                                                                                                    attributes: attributes
+                                                                                                } %}
+                                                                                            {% endblock %}
+                                                                                        {% else %}
+                                                                                            {% set attributes = attributes|merge({
+                                                                                                alt: (cover.translated.alt ?: name),
+                                                                                                loading: 'lazy'
+                                                                                            }) %}
+
+                                                                                            {% if displayMode == 'cover' or displayMode == 'contain' %}
+                                                                                                {% set attributes = attributes|merge({ 'data-object-fit': displayMode }) %}
+                                                                                            {% endif %}
+
+                                                                                            {% block component_product_box_image_thumbnail %}
+                                                                                                {% sw_thumbnails 'product-image-thumbnails' with {
+                                                                                                    media: cover,
+                                                                                                    sizes: sizes,
+                                                                                                    attributes: attributes
+                                                                                                } %}
+                                                                                            {% endblock %}
+                                                                                        {% endif %}
+                                                                                    {% else %}
+                                                                                        {% block component_product_box_image_placeholder %}
+                                                                                        <img src="{{page.product.media.elements|first.media.url}}" />
+                                                                                        {% endblock %}
+                                                                                    {% endif %}
+                                                                                {% endblock %}
+                                                                        {% endblock %}
+
+                                                                    </div>
+                                                                </div>
+
+                                                            {% endblock %}
+
+                                                            {% block component_product_box_info %}
+                                                                <div class="second-row">
+                                                                    {% block component_product_box_name %}
+                                                                        <span class="product-name">
+                                                                
+                                                                            {{ product.translated.name }}
+                                                                        </a>
+                                                                    {% endblock %}
+                                                                    <div class="d-lg-none mobile-only">
+                                                                        {% if stock > 0 %}
+                                                                            <p class="stock">
+                                                                                <spna>Stock</spna>{{ product.availableStock }}</p>
                                                                         {% else %}
-                                                                            {% set attributes = attributes|merge({
-                                                                                alt: (cover.translated.alt ?: name),
-                                                                                loading: 'lazy'
-                                                                            }) %}
+                                                                            {{ "bundleplugin.grouped.nostock"|trans|sw_sanitize }}
+                                                                        {% endif %}
+                                                                        <p class="product-number">{{ product.productNumber }}</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="third-row">
+                                                                    <p class="product-number">{{ product.productNumber }}</p>
 
-                                                                            {% if displayMode == 'cover' or displayMode == 'contain' %}
-                                                                                {% set attributes = attributes|merge({ 'data-object-fit': displayMode }) %}
-                                                                            {% endif %}
+                                                                </div>
+                                                                <div class="fourth-row">
+                                                                        <ul>
+                                                                            {% for option in product.variation %}
+                                                                                <li><span class="group-name d-none">{{option.group}}</span><span>{{ option.option }}</span></li>
+                                                                            {% endfor %}
+                                                                        </ul>
+                                                                </div>
+                                                                    <div class="fifth-row">
+                                                                        <p class="stock">
+                                                                            {{ stock > 0 ? stock : 0 }}
+                                                                        </p>
+                                                                    </div>
+                                                                <div class="sixth-row">
+                                                                    {% if product.availableStock > 0 %}
+                                                                        <input
+                                                                            type="number"
+                                                                            name="quantity"
+                                                                            class="quantity-input"
+                                                                            id="quantity-input"
+                                                                            min="0"
+                                                                            max="{{ product.availableStock }}"
+                                                                            value="0"
+                                                                        />
+                                                                    {% else %}
+                                                                        <p>{{ "bundleplugin.grouped.nostock"|trans|sw_sanitize }}</p>
+                                                                    {% endif %}
+                                                                </div>
+                                                                <div class="seventh-row">
+                                                                   {% if product.prices.elements %}
+                                                                        {% set printedPrice = false %}
+                                                                        {% if product.extensions.customPrice is defined and product.extensions.customPrice.elements is defined %}
+                                                                            {% for customPrice in product.extensions.customPrice.elements %}
+                                                                                {% if customPrice.customerId == context.customer.id and customPrice.productId == product.id %}
+                                                                                    <p class="price-product">{{ (customPrice.price|first)|first.net|currency }}</p>
+                                                                                    {% set printedPrice = true %}
+                                                                                    {% break %}
+                                                                                {% endif %}
+                                                                            {% endfor %}
+                                                                        {% endif %}
 
-                                                                            {% block component_product_box_image_thumbnail %}
-                                                                                {% sw_thumbnails 'product-image-thumbnails' with {
-                                                                                    media: cover,
-                                                                                    sizes: sizes,
-                                                                                    attributes: attributes
-                                                                                } %}
-                                                                            {% endblock %}
+                                                                        {% if not printedPrice and product.prices.elements is defined %}
+                                                                            {% for prices in product.prices %}
+                                                                                {% if prices.quantityStart == 1 and prices.ruleId in context.areaRuleIds.product and prices.price.elements|first.net > 0 %}
+                                                                                    {% if prices.price.elements|first.net %}
+                                                                                        <p class="price-product">{{ prices.price.elements|first.net|currency }}</p>
+                                                                                        {% set printedPrice = true %}
+                                                                                        {% break %}
+                                                                                    {% endif %}
+                                                                                {% endif %}
+                                                                            {% endfor %}
+                                                                        {% endif %}
+
+                                                                        {% if not printedPrice and product.price.elements is defined %}
+                                                                            {% for price in product.price.elements %}
+                                                                                <p class="price-product">{{ price.gross|currency }}</p>
+                                                                                {% set printedPrice = true %}
+                                                                                {% break %}
+                                                                            {% endfor %}
                                                                         {% endif %}
                                                                     {% else %}
-                                                                        {% block component_product_box_image_placeholder %}
-                                                                            <div class="product-image-placeholder">
-                                                                                {% sw_icon 'placeholder' style {
-                                                                                    size: 'fluid'
-                                                                                } %}
-                                                                            </div>
-                                                                        {% endblock %}
+                                                                         {% for price in product.price.elements %}
+                                                                                <p class="price-product">{{ price.gross|currency }}</p>
+                                                                              
+                                                                            {% endfor %}
                                                                     {% endif %}
-                                                                {% endblock %}
-                                                        {% endblock %}
 
-                                                    </div>
-                                                </div>
+                                                                </div>
+                                                                <div class="last-row">
+                                                                    {% for price in product.price.elements %}
+                                                                        <p class="calculated-price d-none d-lg-block">
 
-                                            {% endblock %}
-
-                                            {% block component_product_box_info %}
-                                                <div class="second-row">
-                                                    {% block component_product_box_name %}
-                                                        <span class="product-name">
-                                                            {{ page.product.translated.name }}
-                                                        </a>
-                                                    {% endblock %}
-                                                    <div class="d-lg-none mobile-only">
-                                                        {% if stock > 0 %}
-                                                            <p class="stock">
-                                                                <spna>Stock</spna>{{ product.availableStock }}</p>
-                                                        {% else %}
-                                                            {{ "bundleplugin.grouped.nostock"|trans|sw_sanitize }}
-                                                        {% endif %}
-                                                        <p class="product-number">{{ product.productNumber }}</p>
-                                                    </div>
-                                                </div>
-                                                <div class="third-row">
-                                                    <p class="product-number">{{ product.productNumber }}</p>
-
-                                                </div>
-                                                 <div class="fourth-row">
-                                                        <ul>
-                                                            {% for option in product.variation %}
-                                                                <li><span class="group-name d-none">{{option.group}}</span><span>{{ option.option }}</span></li>
-                                                            {% endfor %}
-                                                        </ul>
-                                                  </div>
-                                                    <div class="fifth-row">
-                                                        <p class="stock">
-                                                            {{ stock > 0 ? stock : 0 }}
-                                                        </p>
-                                                    </div>
-                                                <div class="sixth-row">
-                                                    {% if product.availableStock > 0 %}
-                                                        <input 
-                                                            type="number" 
-                                                            name="quantity" 
-                                                            class="quantity-input" 
-                                                            id="quantity-input" 
-                                                            min="0" 
-                                                            max="{{ product.availableStock }}" 
-                                                            value="0"
-                                                        />
-                                                    {% else %}
-                                                        <p>{{ "bundleplugin.grouped.nostock"|trans|sw_sanitize }}</p>
-                                                    {% endif %}
-                                                </div>
-                                                <div class="seventh-row">
-
-                                                {% if product.prices.elements %}
-                                                    {% set printedPrice = false %}
-
-                                                    {% for prices in product.prices %}
-                                                        {% if not printedPrice and prices.quantityStart == 1 and prices.ruleId in context.areaRuleIds.product %}
-                                                            {% if prices.price.elements|first.net %}
-                                                                <p class="price-product">{{ prices.price.elements|first.net|currency }}</p>
-                                                                {% set printedPrice = true %}
-                                                            {% endif %}
-                                                        {% endif %}
-                                                    {% endfor %}
-
-                                                    {% if not printedPrice %}
-                                                          {% for price in product.price.elements %}
-                                                            <p class="price-product">{{ price.gross|currency }}</p>
-                                                        {% endfor %}
-                                                    {% endif %}
-                                                {% endif %}
-                                                </div>
-                                                <div class="last-row">
-                                                    {% for price in product.price.elements %}
-                                                        <p class="calculated-price d-none d-lg-block">
-                                                        {% for prices in product.prices %}
-                                                            {% if not printedPrice and prices.quantityStart == 1 and prices.ruleId in context.areaRuleIds.product %}
-                                                                {{ prices.price.elements|first.net|currency }}
-                                                                {% set printedPrice = true %}
-                                                            {% endif %}
-                                                        {% endfor %}
-                                                        </p>
-                                                    {% endfor %}
-                                                </div>
-                                                <div class="d-none">
-                                                    {% block component_product_box_action %}
-                                                        {% sw_include '@Storefront/storefront/component/product/card/action.html.twig' %}
+                                                                        {% for prices in product.prices %}
+                                                                            {% if not printedPrice and prices.quantityStart == 1 and prices.ruleId in context.areaRuleIds.product %}
+                                                                                {{ prices.price.elements|first.net|currency }}
+                                                                                {% set printedPrice = true %}
+                                                                            {% endif %}
+                                                                        {% endfor %}
+                                                                        </p>
+                                                                    {% endfor %}
+                                                                </div>
+                                                                <div class="d-none">
+                                                                    {% block component_product_box_action %}
+                                                                        {% sw_include '@Storefront/storefront/component/product/card/action.html.twig' %}
+                                                                    {% endblock %}
+                                                                </div>
+                                                            {% endblock %}
+                                                        </div>
                                                     {% endblock %}
                                                 </div>
-                                            {% endblock %}
-                                        </div>
-                                    {% endblock %}
-                                </div>
-                            {% endif %}
-                        {% endblock %}
+                                            {% endif %}
+                                        {% endblock %}
 
-                    {% endfor %}
+                                    {% endfor %}
 
-                {% endfor %}
-            </div>
-        </div>
-    {% endif %}
-
+                                {% endfor %}
+                            </div>
+                        </div>
+                {% endif %}
+            {% endif %}
 {% endblock %}

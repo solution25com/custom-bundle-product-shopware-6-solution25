@@ -114,7 +114,6 @@ export default class AddAllCart extends Plugin {
             const quantityInput = productBox.querySelector('.quantity-input');
     
             if (!inputs.length || !quantityInput) {
-                console.warn('[AddAllCart] Missing inputs or quantity input, skipping productBox');
                 return;
             }
     
@@ -243,6 +242,12 @@ export default class AddAllCart extends Plugin {
     
     
     _submitValidLineItems(lineItemsData) {
+
+        const addAllButton = document.querySelector('.grouped-product-action .add-all');
+        if (addAllButton) {
+            addAllButton.textContent = 'Processing...';
+            addAllButton.classList.add('is--processing');
+        }
         const url = '/checkout/line-item/add';
         const formData = new FormData();
     
@@ -275,11 +280,14 @@ export default class AddAllCart extends Plugin {
             const cartButton = document.querySelector('.btn.header-cart-btn.header-actions-btn');
             if (cartButton) {
                 cartButton.click();
+                addAllButton.textContent = 'Add to shopping cart';
+                addAllButton.classList.remove('is--processing');
             }
         })
         .catch((error) => {
             console.error('Error adding items to cart:', error);
-        });
+        })
+
     }
     
     _registerQuantityChange() {

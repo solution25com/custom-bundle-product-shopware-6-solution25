@@ -25,9 +25,18 @@
 }
 
 .no-quantity-list {
-  opacity: 0.2 !important;
+  opacity: 0.2 !important;  
   text-decoration: line-through !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  cursor: not-allowed !important;
+  input{
+    pointer-events: none !important;
+    user-select: none !important;
+    cursor: not-allowed !important;
+  }
 }
+
 
 .no-quantity {
   cursor:not-allowed !important;

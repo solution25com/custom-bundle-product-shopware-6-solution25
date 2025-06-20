@@ -2,6 +2,7 @@ import Plugin from 'src/plugin-system/plugin.class';
 
 export default class StickybuttonPlugin extends Plugin {
     init() {
+        this.hasScrolled = false;
         this.productGrouped = document.querySelector('.product-grouped');
         this.groupedProductAction = document.querySelector('.grouped-product-action');
         this.clone = null;
@@ -9,7 +10,7 @@ export default class StickybuttonPlugin extends Plugin {
         if (this.productGrouped && this.groupedProductAction) {
             this.observer = new IntersectionObserver((entries) => {
                 entries.forEach((entry) => {
-                    if (!entry.isIntersecting) {
+                    if (!entry.isIntersecting && this.hasScrolled) {
                         this.createClone();
                     } else {
                         this.removeClone();
@@ -37,6 +38,7 @@ export default class StickybuttonPlugin extends Plugin {
 
             this.listingObserver.observe(this.productListing);
         }
+        this.registerScrollHandler();
     }
 
     createClone() {
@@ -82,5 +84,22 @@ export default class StickybuttonPlugin extends Plugin {
             this.cloneAddAll.remove();
             this.cloneAddAll = null;
         }
+    }
+
+    registerScrollHandler() {
+        window.addEventListener('scroll', () => {
+            this.hasScrolled = true;
+            const scrollY = window.scrollY;
+            const documentHeight = document.documentElement.scrollHeight;
+            const viewportHeight = window.innerHeight;
+
+            const scrollBottom = scrollY + viewportHeight;
+            const threshold = 120;
+            if ((documentHeight - scrollBottom) <= threshold) {
+                this.createClone();
+            } else {
+                this.removeClone();
+            }
+        });
     }
 }

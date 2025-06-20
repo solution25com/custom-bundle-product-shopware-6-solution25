@@ -87,6 +87,8 @@ export default class BundlePricePlugin extends Plugin {
         const groupId = dropdownOptions.id;
         const discount = parseFloat(dropdownOptions.dataset.discount || '0');
         const discountType = dropdownOptions.dataset.discountType || 'none';
+        const bundleName = dropdownOptions.dataset.bundleName || 'none';
+        const parentProductId = dropdownOptions.dataset.parentProductId || 'none';
 
         this.bundlesData[groupId] = [];
 
@@ -96,6 +98,8 @@ export default class BundlePricePlugin extends Plugin {
                     id: box.value,
                     price: parseFloat(box.dataset.price) || 0,
                     bundleQuantity: parseInt(box.dataset.bundleQuantity) || 0,
+                    bundleName: bundleName,
+                    parentProductId: parentProductId,
                     discount: discount,
                     discountType: discountType
                 });
@@ -169,7 +173,7 @@ export default class BundlePricePlugin extends Plugin {
                     const minQty = parseInt(match[1], 10);
                     const priceVal = parseFloat(dataset[key]);
                     if (!isNaN(minQty) && !isNaN(priceVal)) {
-                        tierPrices.push({ minQty, price: priceVal });
+                        tierPrices.push({minQty, price: priceVal});
                     }
                 }
             }
@@ -195,45 +199,45 @@ export default class BundlePricePlugin extends Plugin {
                 quantity = v;
             }
         }
-    
+
         this.updateCheckboxPricesByQuantity(quantity);
-    
+
         const hasBundleSelected = Object.keys(this.bundlesData).length > 0;
         let totalPrice = 0;
-    
+
         if (hasBundleSelected) {
             for (const groupId in this.bundlesData) {
                 this.bundlesData[groupId].forEach(item => {
                     const cb = document.querySelector(`.bundle-checkbox[value="${item.id}"]`);
-    
+
                     let unitPrice = cb && cb.dataset.price
                         ? parseFloat(cb.dataset.price)
                         : 0;
-    
+
                     if (item.discountType === 'percentage') {
                         unitPrice -= (unitPrice * item.discount) / 100;
                     } else if (item.discountType === 'fixed') {
                         unitPrice -= item.discount;
                     }
                     unitPrice = Math.max(0, unitPrice);
-    
+
                     const bundleQty = item.bundleQuantity
                         || (cb ? parseInt(cb.dataset.bundleQuantity, 10) : 1)
                         || 1;
-    
+
                     totalPrice += unitPrice * bundleQty * quantity;
                 });
             }
         } else {
             totalPrice = this.grossPrice;
         }
-    
+
         if (totalPrice <= 0) {
             totalPrice = this.grossPrice;
         }
-    
+
         const formattedPrice = `${this.activeCurrency}${totalPrice.toFixed(2)}*`;
-    
+
         if (this.priceDisplay) {
             this.priceDisplay.textContent = formattedPrice;
         }
@@ -243,7 +247,7 @@ export default class BundlePricePlugin extends Plugin {
         if (this.subPriceInput) {
             this.subPriceInput.value = totalPrice.toFixed(2);
         }
-    
+
         if (this.productPriceElement && this.bundlePriceElement) {
             if (hasBundleSelected) {
                 this.bundlePriceElement.style.display = 'block';
@@ -253,16 +257,16 @@ export default class BundlePricePlugin extends Plugin {
                 this.productPriceElement.style.display = 'block';
             }
         }
-    
+
         const listPriceWrapper = document.querySelector('.product-detail-list-price-wrapper');
         if (listPriceWrapper) {
             listPriceWrapper.style.display = hasBundleSelected ? 'none' : '';
         }
-    
+
         const stickyUnitPrice = document.querySelector('.sticky-unit-price');
         if (stickyUnitPrice) {
             stickyUnitPrice.innerHTML = `<span>Subtotal:</span> <span class="bundle-subtotal-value">${formattedPrice}</span>`;
         }
     }
-    
+
 }
