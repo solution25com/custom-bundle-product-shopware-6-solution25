@@ -82,6 +82,130 @@ After installation, activate the plugin in the Shopware 6 administration panel.
 
 ---
 
+# Bundle Plugin - API Documentation
+ 
+This document describes the API endpoints provided by the Bundle Plugin for Shopware 6. These endpoints allow authorized users to create, update, delete, and fetch bundle data associated with products.
+ 
+---
+ 
+## Create or Update Product Bundle
+ 
+**Endpoint**  
+`POST /api/bundle/upsert`
+ 
+### Description
+ 
+Creates or updates a product bundle for a specified main product (identified by `productNumber`).  
+If an empty `products` array is provided, the existing bundle will be deleted.
+ 
+### Validation
+ 
+The system validates:
+ 
+- Existence of the main product by `productNumber`.
+- Validity and presence of each assigned product’s `productNumber` and `quantity`.
+- Proper input format.
+ 
+### Request Headers
+ 
+```
+Authorization: Bearer <your-access-token>
+Content-Type: application/json
+```
+ 
+> **Note**: The access token must be obtained from the Shopware Admin API using a valid integration or user login.
+ 
+### Example Request Body
+ 
+```json
+{
+  "id": "b2f47e1c6d1247cf9f3f1b4d4c43f784",
+  "productNumber": "SW10123",
+  "name": "Summer Bundle",
+  "discount": 15,
+  "discountType": "percentage",
+  "products": [
+    {
+      "productNumber": "SW20100",
+      "quantity": 2
+    },
+    {
+      "productNumber": "SW20200",
+      "quantity": 1
+    }
+  ]
+}
+```
+ 
+### Successful Response
+ 
+```json
+{
+  "status": "success",
+  "data": "Bundle b2f47e1c6d1247cf9f3f1b4d4c43f784 successfully updated"
+}
+```
+ 
+### Example Error Response
+ 
+```json
+{
+  "error": "Product not found"
+}
+```
+ 
+---
+ 
+## Get Customer Cart Line Items
+ 
+**Endpoint**  
+`GET /bundle/cart-by-customer`
+ 
+### Description
+ 
+Returns the current cart items for the logged-in customer.
+ 
+### Request Headers
+ 
+```
+Accept: application/json
+```
+ 
+### Query Parameters
+ 
+- `customerId` (optional)
+ 
+### Successful Response
+ 
+```json
+{
+  "success": true,
+  "customerId": "e45fe67c39424bc8aab0a7b99a91545b",
+  "lineItems": [
+    {
+      "id": "lineItem1",
+      "referencedId": "productId1",
+      "quantity": 2
+    },
+    {
+      "id": "lineItem2",
+      "referencedId": "productId2",
+      "quantity": 1
+    }
+  ]
+}
+```
+ 
+### Example Error Response
+ 
+```json
+{
+  "success": false,
+  "message": "Access denied. You can only access your own cart."
+}
+```
+---
+
 ## Best Practices
 
 - **Use meaningful names for your bundles**: This helps customers understand what they're getting.  
