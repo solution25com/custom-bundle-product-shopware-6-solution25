@@ -159,9 +159,9 @@ export default class AddAllCart extends Plugin {
             return res.json();
         })
         .then(data => {
-
+    
             if (!data.success) {
-                alert(data.message || 'Failed to fetch cart info.');
+                this._showFullStockPopup(lineItemsData);
                 return;
             }
     
@@ -172,26 +172,22 @@ export default class AddAllCart extends Plugin {
                 cartQuantities[productId] = (cartQuantities[productId] || 0) + quantity;
             });
     
+            this.lastKnownCartQuantities = cartQuantities;
+    
             lineItemsData.forEach(item => {
                 const referencedId = item.referencedId;
                 const quantityToAdd = parseInt(item.quantity, 10);
                 const currentInCart = cartQuantities[referencedId] || 0;
     
                 const productBox = this.groupedWrapper.querySelector(`.product-box[data-product-id="${referencedId}"]`);
-                if (!productBox) {
-                    console.warn('[AddAllCart] No productBox for', referencedId);
-                    return;
-                }
+                if (!productBox) return;
     
                 const stockElement = productBox.querySelector('.stock');
                 const stockText = stockElement?.textContent?.trim() ?? '';
                 const stockMatch = stockText.match(/\d+/);
                 const availableStock = stockMatch ? parseInt(stockMatch[0], 10) : null;
     
-                if (availableStock === null) {
-                    console.warn('[AddAllCart] No valid stock for', referencedId);
-                    return;
-                }
+                if (availableStock === null) return;
     
                 const remainingStock = Math.max(availableStock - currentInCart, 0);
     
@@ -199,25 +195,43 @@ export default class AddAllCart extends Plugin {
                     stockElement.textContent = `${remainingStock}`;
                 }
     
-                const select = productBox.querySelector('.quantity-select');
-                if (select) {
-                    select.innerHTML = '';
-                    for (let i = 0; i <= remainingStock; i++) {
-                        const option = document.createElement('option');
-                        option.value = i;
-                        option.textContent = i;
-                        select.appendChild(option);
+                const input = productBox.querySelector('.quantity-input');
+                const inputWrapper = productBox.querySelector('.sixth-row');
+    
+                const existingInfo = inputWrapper?.querySelector('.cart-info-message');
+                if (existingInfo) existingInfo.remove();
+    
+                if (currentInCart >= availableStock) {
+                    if (input) {
+                        input.remove();
                     }
     
-                    const newValue = Math.min(quantityToAdd, remainingStock);
-                    select.value = newValue;
+                    const msg = document.createElement('span');
+                    msg.classList.add('cart-info-message');
+                    msg.textContent = 'Already added in cart';
+                    if (inputWrapper) {
+                        inputWrapper.appendChild(msg);
+                    }
+    
+                    const productName = productBox?.querySelector('.product-name')?.textContent?.trim() || 'Product';
+                    this._showHtmlAlert(`${productName} is already added in cart with max stock.`);
+    
+                    item.skip = true;
+                    return;
+                }
+    
+                if (input) {
+                    input.disabled = false;
+                    input.max = remainingStock;
+                    input.min = 0;
+                    input.value = Math.min(quantityToAdd, remainingStock);
     
                     const hiddenQuantityInput = productBox.querySelector('input[name*="[quantity]"]');
                     if (hiddenQuantityInput) {
-                        hiddenQuantityInput.value = newValue;
+                        hiddenQuantityInput.value = input.value;
                     }
     
-                    item.quantity = newValue;
+                    item.quantity = parseInt(input.value, 10);
                 }
     
                 if (remainingStock <= 0 || item.quantity <= 0) {
@@ -228,7 +242,7 @@ export default class AddAllCart extends Plugin {
             const validItems = lineItemsData.filter(item => !item.skip && parseInt(item.quantity, 10) > 0);
     
             if (validItems.length === 0) {
-                alert('No valid products to add to the cart.');
+                this._showFullStockPopup(lineItemsData, cartQuantities);
                 return;
             }
     
@@ -236,18 +250,68 @@ export default class AddAllCart extends Plugin {
         })
         .catch(err => {
             console.error('[AddAllCart] Error during cart check:', err);
-            alert('Something went wrong while checking your cart. Please try again.');
+    
+            if (this.lastKnownCartQuantities) {
+                const firstFullProduct = lineItemsData.find(item => {
+                    const referencedId = item.referencedId;
+                    const productBox = this.groupedWrapper.querySelector(`.product-box[data-product-id="${referencedId}"]`);
+                    const stockElement = productBox?.querySelector('.stock');
+                    const stockText = stockElement?.textContent?.trim() ?? '';
+                    const stockMatch = stockText.match(/\d+/);
+                    const availableStock = stockMatch ? parseInt(stockMatch[0], 10) : null;
+    
+                    const currentInCart = this.lastKnownCartQuantities[referencedId] || 0;
+    
+                    return availableStock !== null && currentInCart >= availableStock;
+                });
+    
+            }
         });
     }
+    
+    _showHtmlAlert(message) {
+        if (!this.groupedWrapper) return;
+    
+        let container = this.groupedWrapper.querySelector('#custom-alert-container');
+    
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'custom-alert-container';
+            container.style.position = 'relative';
+            this.groupedWrapper.appendChild(container);
+        }
+    
+        const alertBox = document.createElement('div');
+        alertBox.classList.add('custom-alert');
+        alertBox.textContent = message;
+    
+        container.appendChild(alertBox);
+    
+        requestAnimationFrame(() => {
+            alertBox.style.left = '20px';
+        });
+    
+        setTimeout(() => {
+            alertBox.style.left = '-300px';
+            setTimeout(() => alertBox.remove(), 500);
+        }, 3000);
+    }
+    
+    
     
     
     _submitValidLineItems(lineItemsData) {
 
-        const addAllButton = document.querySelector('.grouped-product-action .add-all');
-        if (addAllButton) {
-            addAllButton.textContent = 'Processing...';
-            addAllButton.classList.add('is--processing');
+        const addAllButton = document.querySelectorAll('.add-all');
+
+        if (addAllButton && addAllButton.length > 0) {
+            addAllButton.forEach(button => {
+                button.textContent = 'Processing...';
+                button.classList.add('is--processing');
+                button.setAttribute('disabled', 'true');
+            });
         }
+
         const url = '/checkout/line-item/add';
         const formData = new FormData();
     
@@ -280,8 +344,14 @@ export default class AddAllCart extends Plugin {
             const cartButton = document.querySelector('.btn.header-cart-btn.header-actions-btn');
             if (cartButton) {
                 cartButton.click();
-                addAllButton.textContent = 'Add to shopping cart';
-                addAllButton.classList.remove('is--processing');
+            }
+
+            if (addAllButton && addAllButton.length > 0) {
+                addAllButton.forEach(button => {
+                    button.textContent = 'Add to shopping cart';
+                    button.classList.remove('is--processing');
+                    button.removeAttribute('disabled');
+                });
             }
         })
         .catch((error) => {

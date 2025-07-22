@@ -15,12 +15,11 @@
   margin: 0 auto;
 }
 
-.custom-save-all-bundles-button {
+.custom-save-all-bundles-button-create {
   display: flex;
   justify-content: flex-end;
   margin-right: 2vh;
   margin-bottom: 1vh;
-
 }
 
 #bundle-configurator-container {
@@ -54,3 +53,9 @@
     }
 }
 
+.bundle-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}

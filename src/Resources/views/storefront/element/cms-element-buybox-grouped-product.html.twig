@@ -51,17 +51,18 @@
                             <p class="product-name">{{ product.translated.name }}</p>
                                     <div class="brands">
                                         <p>
-                                            {{ "bundleplugin.grouped.brands"|trans|sw_sanitize }}
+                                        {{ "bundleplugin.grouped.brands"|trans|sw_sanitize }}
                                             {% if brandLink %}
                                                 <a href="{{ brandLink }}"> {{ product.manufacturer.translated.name }}</a>
                                             {% else %}
                                                 <span class="fw-bold">{{ product.manufacturer.translated.name }}</span>
                                             {% endif %}
+
                                         </p>
                                     </div>
                                 {% endif %}
                              <div class="product-description">
-                                {% set description = useSalesChannelContent and salesChannelContent.shortDescription is defined ? salesChannelContent.shortDescription|raw : product.translated.description|raw %}
+                                {% set description = (useSalesChannelContent and salesChannelContent.shortDescription is defined and salesChannelContent.shortDescription) ? salesChannelContent.shortDescription|raw : '' %}
                                 {{ description|raw }}
                             </div>
                             {% set sportsMediaId = page.product.translated.customFields.custom_special_banner_product_image %}

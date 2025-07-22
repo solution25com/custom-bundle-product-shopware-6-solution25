@@ -2,60 +2,30 @@ import Plugin from 'src/plugin-system/plugin.class';
 
 export default class StickybuttonPlugin extends Plugin {
     init() {
-        this.hasScrolled = false;
-        this.productGrouped = document.querySelector('.product-grouped');
         this.groupedProductAction = document.querySelector('.grouped-product-action');
         this.clone = null;
+        this.quantityChanged = false;
 
-        if (this.productGrouped && this.groupedProductAction) {
-            this.observer = new IntersectionObserver((entries) => {
-                entries.forEach((entry) => {
-                    if (!entry.isIntersecting && this.hasScrolled) {
-                        this.createClone();
-                    } else {
-                        this.removeClone();
-                    }
-                });
-            }, { threshold: 0 });
+        this.container = document.querySelector('#bundle-price-container');
 
-            this.observer.observe(this.productGrouped);
+        if (this.groupedProductAction) {
+            this.registerScrollHandler();
+            this.registerGlobalClickHandler();
+            this.registerInputHandler();
         }
-
-        this.productListing = document.querySelector('.cms-element-product-listing');
-        this.addAllButton = document.querySelector('.bundle-add-all');
-        this.cloneAddAll = null;
-
-        if (this.productListing && this.addAllButton) {
-            this.listingObserver = new IntersectionObserver((entries) => {
-                entries.forEach((entry) => {
-                    if (!entry.isIntersecting) {
-                        this.createAddAllClone();
-                    } else {
-                        this.removeAddAllClone();
-                    }
-                });
-            }, { threshold: 0 });
-
-            this.listingObserver.observe(this.productListing);
-        }
-        this.registerScrollHandler();
     }
 
     createClone() {
-        if (!this.clone && this.groupedProductAction) {
+        this.removeClone();
+
+        if (this.groupedProductAction) {
             this.clone = this.groupedProductAction.cloneNode(true);
             this.clone.classList.add('scrolled-past-clone');
+
+            this.clone.removeAttribute('data-add-all-cart');
+            this.clone.removeAttribute('data-sticky-grouped-product');
+
             document.body.appendChild(this.clone);
-
-            const cloneAddAllButton = this.clone.querySelector('.add-all');
-            const originalAddAllButton = this.groupedProductAction.querySelector('.add-all');
-
-            if (cloneAddAllButton && originalAddAllButton) {
-                cloneAddAllButton.addEventListener('click', (event) => {
-                    event.preventDefault();
-                    originalAddAllButton.click();
-                });
-            }
         }
     }
 
@@ -66,40 +36,61 @@ export default class StickybuttonPlugin extends Plugin {
         }
     }
 
-    createAddAllClone() {
-        if (!this.cloneAddAll && this.addAllButton) {
-            this.cloneAddAll = this.addAllButton.cloneNode(true);
-            this.cloneAddAll.classList.add('bundle-add-all-cloned');
-            document.body.appendChild(this.cloneAddAll);
-
-            this.cloneAddAll.addEventListener('click', (event) => {
-                event.preventDefault();
-                this.addAllButton.click();
-            });
-        }
-    }
-
-    removeAddAllClone() {
-        if (this.cloneAddAll) {
-            this.cloneAddAll.remove();
-            this.cloneAddAll = null;
-        }
-    }
-
     registerScrollHandler() {
         window.addEventListener('scroll', () => {
-            this.hasScrolled = true;
-            const scrollY = window.scrollY;
-            const documentHeight = document.documentElement.scrollHeight;
-            const viewportHeight = window.innerHeight;
+            if (this._isInViewport(this.groupedProductAction)) {
+                this.removeClone();
+                return;
+            }
 
-            const scrollBottom = scrollY + viewportHeight;
-            const threshold = 120;
-            if ((documentHeight - scrollBottom) <= threshold) {
+            const elementRect = this.groupedProductAction.getBoundingClientRect();
+            const triggerOffset = 150;
+            const isScrolledPast = elementRect.top < triggerOffset;
+
+            if (isScrolledPast || this.quantityChanged) {
                 this.createClone();
             } else {
                 this.removeClone();
             }
+        }, { passive: true });
+    }
+
+    registerInputHandler() {
+        if (!this.container) {
+            return;
+        }
+
+        this.container.addEventListener('input', (event) => {
+            if (event.target.matches('.sixth-row input[type="number"]')) {
+
+                if (this._isInViewport(this.groupedProductAction)) {
+                    return;
+                }
+
+                this.quantityChanged = true;
+                this.createClone();
+            }
         });
+    }
+
+    registerGlobalClickHandler() {
+        document.addEventListener('click', (event) => {
+            if (event.target.closest('.scrolled-past-clone .add-all')) {
+                event.preventDefault();
+
+                const originalAddAll = document.querySelector('.product-grouped .grouped-product-action .add-all');
+                if (originalAddAll) {
+                    originalAddAll.click();
+                }
+            }
+        });
+    }
+
+    _isInViewport(element) {
+        const rect = element.getBoundingClientRect();
+        return (
+            rect.top < window.innerHeight &&
+            rect.bottom > 0
+        );
     }
 }

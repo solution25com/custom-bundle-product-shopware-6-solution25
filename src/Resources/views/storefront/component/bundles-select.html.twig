@@ -46,6 +46,8 @@
     {% endif %}
 
     {% if bundles is not empty %}
+        {% set salesChannelContent = (page.extensions['bundleSalesChannelContents'][0] is defined) ? page.extensions['bundleSalesChannelContents'][0] : null %}
+        {% set useSalesChannelContent = salesChannelContent and salesChannelContent.salesChannelId == context.salesChannel._uniqueIdentifier %}
         <div class="bundle-selection" data-dropdown>
             <p class="bundle-title">Products in bundle</p>
             <div class="bundles-select-group"
@@ -56,9 +58,10 @@
            
                 {% for bundle in bundles %}
                     <div class="bundle-set">
+                       
                         <div class="bundles-select">
                             <button class="bundle-dropdown-toggle" type="button" data-bundle-id="{{ bundle.id }}">
-                                {{ bundle.name }}
+                                    {{ bundle.name }}
                             </button>
                             <ul class="dropdown-options"
                                 id="{{ bundle.id }}"
@@ -68,16 +71,17 @@
                                 data-parent-product-id="{{ page.product.id }}"
                             >
                                 {% for assignedProduct in bundle.bundleAssignedProducts.elements %}
-                                
-                                    <li class="{% if assignedProduct.product.stock < 1 or assignedProduct.quantity < 1  %}no-quantity-list{% endif %}">
+                                    <li class="{% if assignedProduct.quantity == 0 %}no-quantity-list-li {% endif %} {% if assignedProduct.product.stock < 1 or assignedProduct.quantity < 1 or assignedProduct.quantity > assignedProduct.product.availableStock %}no-quantity-list{% endif %}">
                                         <span class="d-none max-quantity">{{ assignedProduct.product.stock }}</span>
                                         <input type="checkbox"
                                                value="{{ assignedProduct.product.id }}"
                                                class="bundle-checkbox"
-                                               {% if assignedProduct.product.stock < 1 %}disabled{% endif %}
+                                               {% if assignedProduct.product.stock < 1 or assignedProduct.quantity > assignedProduct.product.availableStock %}disabled{% endif %}
                                                id="checkbox-{{ assignedProduct.product.id }}"
+                                               data-bundle-max-stock="{{ assignedProduct.product.availableStock }}"
+                                               data-bundle-info="The selected product {{ assignedProduct.product.name }} has been removed from selection because the available stock has been exceeded."
                                                data-bundle-quantity="{{ assignedProduct.quantity }}"
-                                               
+                                               data-calculated-quantity=""
                                                {% set customPriceFound = false %}
                                                {% set advancedPriceFound = false %}
 
@@ -111,10 +115,12 @@
                                                {% endif %}
                                         >
                                         <label for="checkbox-{{ assignedProduct.product.id }}">
-                                            {{ assignedProduct.product.name }} {{ assignedProduct.product.variation|first.group }} {{ assignedProduct.product.variation|first.option }}
+                                            {{ assignedProduct.product.name }} 
+                                            {% for bundleProperties in assignedProduct.product.variation %}
+                                                    - {{ bundleProperties.option }}
+                                            {% endfor %}
                                         </label>
                                     </li>
-
                                     <div class="price-tiers d-none"
                                 
                                          data-id="{{ assignedProduct.product.id }}"
@@ -167,5 +173,82 @@
                 <input type="hidden" id="sub-bundle-price" name="bundle-price" value="{{ grossPrice }}">
             {% endif %}
         </div>
+        <div id="bundle-stock-alert" style="position: fixed; top: 100px; right: -400px; color: #fff; padding: 15px 25px; border-radius: 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); z-index: 9999; transition: right 0.5s ease;"></div>
+
     {% endif %}
+        {# Move to JS plugin #}
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const quantityInput = document.querySelector('.quantity-selector-group-input');
+                if (!quantityInput) return;
+
+                const bundleCheckboxes = document.querySelectorAll('.bundle-checkbox');
+
+                let stockAlert = document.getElementById('bundle-stock-alert');
+                if (!stockAlert) {
+                    stockAlert = document.createElement('div');
+                    stockAlert.id = 'bundle-stock-alert';
+                    stockAlert.style.position = 'fixed';
+                    stockAlert.style.top = '100px';
+                    stockAlert.style.right = '-400px';
+                    stockAlert.style.background = '#f44336';
+                    stockAlert.style.color = '#fff';
+                    stockAlert.style.padding = '15px 25px';
+                    stockAlert.style.borderRadius = '5px';
+                    stockAlert.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
+                    stockAlert.style.zIndex = '9999';
+                    stockAlert.style.transition = 'right 0.5s ease';
+                    stockAlert.style.whiteSpace = 'nowrap';
+                    stockAlert.style.minWidth = 'max-content';
+                    stockAlert.style.maxWidth = '400px';
+                    stockAlert.style.fontSize = '14px';
+                    document.body.appendChild(stockAlert);
+                }
+
+                function showAlert(message) {
+                    stockAlert.textContent = message;
+                    stockAlert.style.right = '20px';
+                    setTimeout(() => {
+                        stockAlert.style.right = '-400px';
+                    }, 3000);
+                }
+
+                function updateBundleQuantities() {
+                    const inputQuantity = parseInt(quantityInput.value) || 0;
+
+                    bundleCheckboxes.forEach(checkbox => {
+                        const bundleQuantity = parseInt(checkbox.dataset.bundleQuantity) || 0;
+                        const maxStock = parseInt(checkbox.dataset.bundleMaxStock) || 0;
+                        const totalQuantity = inputQuantity * bundleQuantity;
+
+                        checkbox.dataset.calculatedQuantity = totalQuantity;
+
+                        const li = checkbox.closest('li');
+                        if (!li) return;
+
+                        if (totalQuantity > maxStock) {
+                            li.classList.add('no-quantity-list');
+
+                            if (checkbox.checked) {
+                                checkbox.click();
+                                const message = checkbox.dataset.bundleInfo || 'The selected product has been removed from selection because the available stock has been exceeded.';
+                                showAlert(message);
+                            }
+                        } else {
+                            li.classList.remove('no-quantity-list');
+                        }
+                    });
+                }
+
+                quantityInput.addEventListener('input', updateBundleQuantities);
+                quantityInput.addEventListener('change', updateBundleQuantities);
+
+                updateBundleQuantities();
+            });
+        </script>
+
+
+
+
+
 {% endblock %}

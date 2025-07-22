@@ -1,25 +1,27 @@
 {% block bundle_configurator_create %}
     <div id="bundle-configurator-container">
-        <div class="custom-save-all-bundles-button">
+        <div class="custom-save-all-bundles-button-create">
             <sw-button
                     @click="storeAllBundles"
                     variant="primary"
-                    class="custom-save-all-bundles-button">
+                    class="custom-save-all-bundles-button-create">
                 {{ $tc('product_bundle.create.createBundleTitle') }}
             </sw-button>
         </div>
         <sw-card
                 v-for="(bundle, index) in bundles"
                 :key="index"
-                title="Create Bundle"
                 position-identifier="sw-product-detail-bundle-create">
-            <template v-slot:header-right>
-                <sw-button
-                        variant="ghost-danger"
-                        @click="deleteBundle(index)"
-                        class="delete-bundle-button">
-                    {{ $tc('product_bundle.list.delete') }}
-                </sw-button>
+            <template #title>
+                <div class="bundle-card-header">
+                    <span>{{ $tc('product_bundle.create.createBundleTitle') }}</span>
+                    <sw-button
+                            variant="ghost-danger"
+                            @click="deleteBundle(index)"
+                            class="delete-bundle-button">
+                        {{ $tc('product_bundle.list.delete') }}
+                    </sw-button>
+                </div>
             </template>
             <sw-text-field
                     v-model:value="bundle.bundleName"

@@ -8,6 +8,8 @@ import addAllCart from "./js/addtocart.plugin";
 import StickybuttonPlugin from "./js/stickybutton.plugin";
 import PreventDoubleAddPlugin from './js/prevent-double-add.plugin';
 import MaxBundleQuantity from './js/bundle-max-quantity.plugin';
+import StickyGroupedProductActionPlugin from './js/sticky-grouped-product-action.plugin';
+import QuantityTooltipPlugin from './js/quantity-tooltip.plugin';
 
 
 const PluginManager = window.PluginManager;
@@ -21,4 +23,5 @@ PluginManager.register('addAllCart', addAllCart, '[data-add-all-cart]');
 PluginManager.register('StickybuttonPlugin', StickybuttonPlugin, '[sticky-button]');
 PluginManager.register('PreventDoubleAddPlugin', PreventDoubleAddPlugin, '[data-prevent-double-add]');
 PluginManager.register('MaxBundleQuantity', MaxBundleQuantity, '[data-max-quantity]');
-
+PluginManager.register('StickyGroupedProductActionPlugin', StickyGroupedProductActionPlugin, '[data-sticky-grouped-product]');
+PluginManager.register('QuantityTooltipPlugin', QuantityTooltipPlugin, '[data-quantity-tooltip]');

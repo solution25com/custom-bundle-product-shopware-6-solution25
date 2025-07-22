@@ -14,33 +14,35 @@
             <sw-card
                     v-for="bundle in bundles"
                     :key="bundle.id"
-                    :title="bundle && bundle.name ? bundle.name : 'Bundle'"
                     position-identifier="sw-product-detail-bundle"
             >
-                <template #header-right>
-                    <sw-button
+            <template #title>
+                <div class="bundle-card-header">
+                    <span>{{ bundle?.name || $tc('product_bundle.list.defaultBundleTitle') }}</span>
+                    <div class="bundle-card-actions">
+                        <sw-button
                             v-if="!bundle"
                             :router-link="{ name: 'sw.product.detail.bundle.create' }"
-                            :disabled="!acl.can('product.editor')"
-                    >
-                        {{ $tc('product_bundle.list.addBundle') }}
-                    </sw-button>
-                    <sw-button
+                            :disabled="!acl.can('product.editor')">
+                            {{ $tc('product_bundle.list.addBundle') }}
+                        </sw-button>
+                        <sw-button
                             v-if="bundle"
-                            @click="onStartBundleDelete(bundle)"
-                    >
-                        {{ $tc('product_bundle.list.deleteBundle') }}
-                    </sw-button>
-                    <sw-button
+                            variant="ghost-danger"
+                            class="delete-bundle-button"
+                            @click="onStartBundleDelete(bundle)">
+                            {{ $tc('product_bundle.list.deleteBundle') }}
+                        </sw-button>
+                        <sw-button
                             v-if="bundle"
                             variant="primary"
                             :disabled="!acl.can('product.editor')"
-                            @click="saveBundleChanges(bundle)"
-                    >
-                        {{ $tc('product_bundle.create.save') }}
-                    </sw-button>
-
-                </template>
+                            @click="saveBundleChanges(bundle)">
+                            {{ $tc('product_bundle.create.save') }}
+                        </sw-button>
+                    </div>
+                </div>
+            </template>
 
                 {% block sw_product_detail_bundle_data %}
                     <template>
@@ -91,7 +93,7 @@
                                                         <sw-number-field
                                                                 size="small"
                                                                 numberType="int"
-                                                                :min="1"
+                                                                :min="0"
                                                                 v-model:value="item.newQuantity">
                                                         </sw-number-field>
                                                         <sw-button

@@ -50,7 +50,7 @@ class CartPriceProcessor implements CartProcessorInterface
                 $bundleLineItem->getPrice()->getQuantity()
             );
 
-            $bundleLineItem->setStackable(false);
+            $bundleLineItem->setStackable(true);
             $bundleLineItem->setRemovable(true);
 
             $calculatedPrice = $this->calculator->calculate($definition, $context);

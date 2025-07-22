@@ -198,47 +198,29 @@ Component.register('bundle-configurator-detail', {
         },
 
         editQuantity(item) {
-            console.log('Editing quantity for item:', item);
             this.editingProductId = item.productId;
             this.$set(item, 'newQuantity', item.quantity);
         },
 
         cancelSaveQuantity(item) {
-            console.log('Cancelling quantity edit for item:', item);
             this.editingProductId = null;
         },
 
         async saveQuantity(item) {
-            console.log('Saving new quantity for item:', item);
-
             try {
-                const product = await this.productRepository.get(item.productId, Context.api);
-
-                if (item.newQuantity > product.stock) {
-                    this.createNotificationError({
-                        title: 'Error',
-                        message: `The entered quantity (${item.newQuantity}) exceeds the available stock (${product.stock}).`,
-                    });
-                    return;
-                }
 
                 const criteria = new Criteria();
                 criteria.addFilter(Criteria.equals('productId', item.productId));
                 criteria.addFilter(Criteria.equals('bundleId', item.bundleId));
-                console.log('Search criteria:', criteria);
 
                 const result = await this.bundleAssignedProductsRepository.search(criteria, Context.api);
-                console.log('Search result:', result);
 
                 if (result.total > 0) {
                     const assignedProduct = result.first();
-                    console.log('Assigned product found:', assignedProduct);
 
                     assignedProduct.quantity = item.newQuantity;
-                    console.log('Updated product quantity:', assignedProduct);
 
                     await this.bundleAssignedProductsRepository.save(assignedProduct, Context.api);
-                    console.log('Product saved successfully');
 
                     this.editingProductId = null;
                     this.createNotificationSuccess({
@@ -247,7 +229,6 @@ Component.register('bundle-configurator-detail', {
                     });
 
 
-                    console.log('Refreshing bundle data...');
                     this.getBundle();
                 } else {
                     console.error('Product not found in bundle.');
@@ -264,14 +245,6 @@ Component.register('bundle-configurator-detail', {
         },
 
         async addProductToBundle() {
-            if (!this.showingBundleFormForId || !this.selectedProductId || this.selectedQuantity < 1) {
-                this.createNotificationError({
-                    title: 'Error',
-                    message: 'Please select a product and quantity.',
-                });
-                return;
-            }
-
             if (this.selectedProductId === this.product.id) {
                 this.createNotificationError({
                     title: 'Error',
@@ -290,15 +263,6 @@ Component.register('bundle-configurator-detail', {
                     this.createNotificationError({
                         title: 'Error',
                         message: 'This product is already part of the bundle.',
-                    });
-                    return;
-                }
-
-                const product = await this.productRepository.get(this.selectedProductId, Context.api);
-                if (this.selectedQuantity > product.stock) {
-                    this.createNotificationError({
-                        title: 'Error',
-                        message: `The selected quantity (${this.selectedQuantity}) exceeds the available stock (${product.stock}).`,
                     });
                     return;
                 }
@@ -352,9 +316,12 @@ Component.register('bundle-configurator-detail', {
                 Object.assign(bundle, updatedFields);
 
                 const saveBundleData = await this.bundleRepository.save(bundle, Context.api);
-                const addProductBundle = await this.addProductToBundle();
+                let addProductBundle = null;
+                if (this.selectedProductId && this.selectedProductId !== '') {
+                    addProductBundle = await this.addProductToBundle();
+                }
 
-                if (saveBundleData && addProductBundle) {
+                if (saveBundleData || addProductBundle) {
                     this.createNotificationSuccess({
                         title: 'Success',
                         message: 'Bundle updated successfully.',
