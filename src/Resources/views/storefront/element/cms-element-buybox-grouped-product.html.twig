@@ -60,7 +60,6 @@
 
                                         </p>
                                     </div>
-                                {% endif %}
                              <div class="product-description">
                                 {% set description = (useSalesChannelContent and salesChannelContent.shortDescription is defined and salesChannelContent.shortDescription) ? salesChannelContent.shortDescription|raw : '' %}
                                 {{ description|raw }}
