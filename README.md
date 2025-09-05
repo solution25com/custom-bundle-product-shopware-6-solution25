@@ -14,6 +14,9 @@ This plugin adds the ability to create and manage product bundles in Shopware 6.
 
 ---
 
+## Compatibility
+- ✅ Shopware 6.6.x 
+
 ## Installation
 
 You can install the plugin in two ways:
