@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace BundleConfigurator\Struct;
+namespace solu1CustomBundle\Struct;
 
 use Shopware\Core\Framework\Struct\Struct;
 

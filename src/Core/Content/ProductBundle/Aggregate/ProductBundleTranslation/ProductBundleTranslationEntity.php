@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace BundleConfigurator\Core\Content\ProductBundle\Aggregate\ProductBundleTranslation;
+namespace solu1CustomBundle\Core\Content\ProductBundle\Aggregate\ProductBundleTranslation;
 
-use BundleConfigurator\Core\Content\ProductBundle\ProductBundleEntity;
+use solu1CustomBundle\Core\Content\ProductBundle\ProductBundleEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
 class ProductBundleTranslationEntity extends TranslationEntity

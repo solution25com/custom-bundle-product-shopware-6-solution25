@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BundleConfigurator\Storefront\Controller;
+namespace solu1CustomBundle\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Framework\Context;

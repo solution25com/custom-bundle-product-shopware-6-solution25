@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace BundleConfigurator\Core\Content\ProductBundle\Aggregate\ProductBundleTranslation;
+namespace solu1CustomBundle\Core\Content\ProductBundle\Aggregate\ProductBundleTranslation;
 
-use BundleConfigurator\Core\Content\ProductBundle\ProductBundleDefinition;
+use solu1CustomBundle\Core\Content\ProductBundle\ProductBundleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;

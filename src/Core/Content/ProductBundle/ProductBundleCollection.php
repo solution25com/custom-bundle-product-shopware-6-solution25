@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace BundleConfigurator\Core\Content\ProductBundle;
+namespace solu1CustomBundle\Core\Content\ProductBundle;
 
 use Shopware\Core\Checkout\Cart\Order\CartConvertedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;

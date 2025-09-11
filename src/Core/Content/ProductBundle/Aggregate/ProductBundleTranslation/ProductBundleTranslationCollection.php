@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace BundleConfigurator\Core\Content\ProductBundle\Aggregate\ProductBundleTranslation;
+namespace solu1CustomBundle\Core\Content\ProductBundle\Aggregate\ProductBundleTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 

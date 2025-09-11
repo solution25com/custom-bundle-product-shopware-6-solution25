@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace BundleConfigurator\Controller;
+namespace solu1CustomBundle\Controller;
 
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;

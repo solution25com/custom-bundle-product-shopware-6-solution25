@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace BundleConfigurator\Core\Content\ProductBundle;
+namespace solu1CustomBundle\Core\Content\ProductBundle;
 
-use BundleConfigurator\Core\Content\ProductBundle\Aggregate\ProductBundleTranslation\ProductBundleTranslationDefinition;
-use BundleConfigurator\Core\Content\ProductBundleAssignedProducts\ProductBundleAssignedProductsDefinition;
+use solu1CustomBundle\Core\Content\ProductBundle\Aggregate\ProductBundleTranslation\ProductBundleTranslationDefinition;
+use solu1CustomBundle\Core\Content\ProductBundleAssignedProducts\ProductBundleAssignedProductsDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;

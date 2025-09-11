@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace BundleConfigurator\Core\Content\Product;
+namespace solu1CustomBundle\Core\Content\Product;
 
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use BundleConfigurator\Core\Content\ProductBundle\ProductBundleDefinition;
+use solu1CustomBundle\Core\Content\ProductBundle\ProductBundleDefinition;
 
 class BundleProductExtension extends EntityExtension
 {

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace BundleConfigurator\Twig;
+namespace solu1CustomBundle\Twig;
 
 use Shopware\Core\Framework\Context;
 use Twig\Extension\AbstractExtension;

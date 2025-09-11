@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace BundleConfigurator\Subscriber;
+namespace solu1CustomBundle\Subscriber;
 
 use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;

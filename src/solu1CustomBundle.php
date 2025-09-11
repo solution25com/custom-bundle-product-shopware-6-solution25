@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace BundleConfigurator;
+namespace solu1CustomBundle;
 
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Doctrine\DBAL\Connection;
 
 
-class BundleConfigurator extends Plugin
+class solu1CustomBundle extends Plugin
 {
     public function install(InstallContext $installContext): void {}
 

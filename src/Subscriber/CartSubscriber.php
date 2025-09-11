@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace BundleConfigurator\Subscriber;
+namespace solu1CustomBundle\Subscriber;
 
 use Shopware\Commercial\B2B\ShoppingList\Event\ShoppingListLineItemsLoadedEvent;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemAddedEvent;

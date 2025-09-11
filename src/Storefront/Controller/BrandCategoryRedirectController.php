@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BundleConfigurator\Storefront\Controller;
+namespace solu1CustomBundle\Storefront\Controller;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;

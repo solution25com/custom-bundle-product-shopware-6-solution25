@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace BundleConfigurator\Core\Content\ProductBundleAssignedProducts;
+namespace solu1CustomBundle\Core\Content\ProductBundleAssignedProducts;
 
-use BundleConfigurator\Core\Content\ProductBundle\ProductBundleDefinition;
+use solu1CustomBundle\Core\Content\ProductBundle\ProductBundleDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
