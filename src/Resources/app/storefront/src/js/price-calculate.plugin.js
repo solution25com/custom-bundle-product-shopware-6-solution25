@@ -6,7 +6,6 @@ export default class BundlePriceUpdate extends Plugin {
 
         this.bundleGroups = document.querySelectorAll('.bundles-select-group .bundle-set');
         this.priceDisplay = document.getElementById('bundle-price');
-        // this.bundlesQuery = {{ bundlesQuery|json_encode() }};
         this.selectedOptions = this.parseBundlesQuery(this.bundlesQuery);
 
         this.initializeBundleGroups();

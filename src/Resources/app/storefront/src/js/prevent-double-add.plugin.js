@@ -24,12 +24,10 @@ export default class PreventDoubleAddPlugin extends Plugin {
 
             button.style.pointerEvents = 'none';
             button.style.opacity = '0.5';
-            // button.textContent = 'Add to shopping cart';
 
             setTimeout(() => {
                 button.style.pointerEvents = '';
                 button.style.opacity = '';
-                // button.textContent = 'Add to shopping cart';
                 hasBeenClicked = false;
 
             }, 1000);
