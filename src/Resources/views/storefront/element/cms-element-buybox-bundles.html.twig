@@ -47,7 +47,7 @@
                         {% set useSalesChannelContent = salesChannelContent and salesChannelContent.salesChannelId == context.salesChannel._uniqueIdentifier %}
 
                         <div class="product-information">
-                            <h1 class="product-name">{{ product.translated.name }}</h1>
+                            <span class="h1 product-name">{{ product.translated.name }}</span>
                         <div class="brands">
                                     <p>
                                         {{ "bundleplugin.grouped.brands"|trans|sw_sanitize }}
